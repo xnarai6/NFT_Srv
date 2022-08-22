@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="WaffleStay" />
+    <meta name="description" content="와플스테이">
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Document title -->
+    <title>와플스테이 결제실패</title>
+
+    <!-- Stylesheets -->
+    <link href="../css/reset.css" rel="stylesheet">
+    <link href="../css/common.css" rel="stylesheet">
+    <link href="../css/payment.css" rel="stylesheet">
+
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="wrap">
+        <!-- body inner -->
+        <div class="body-inner">
+            <!-- header -->
+            <header id="header">
+                <div class="container">
+                    <div class="header-inner">
+                        <!-- logo -->
+                        <div class="logo">
+                            <a href="../longstay_index.html">WaffleStay</a>
+                        </div>
+                        <!-- logo -->
+
+                        <!-- nav -->
+                        <nav class="mainMenu">
+                            <ul>
+                                <li><a href="#c">내 여행</a></li>
+                                <li><a href="#c">로그인</a></li>
+                            </ul>
+                        </nav>
+                        <div class="ham">
+                            <span></span>
+                        </div>
+                        <div class="nav_bg"></div>
+                        <!-- nav -->
+                    </div>
+                </div>
+            </header>
+            <!-- header -->
+
+            <!--main-->
+            <main id="main">
+
+                <div class="container">
+                    <section id="payWrap">
+                        
+                        <div class="payBox">
+                            <div class="payTitK">예약실패</div>
+                            <span class="payTitE">Payment Failed</span>
+                            <div class="guideTxt"><i class="red">결제가</i><br>정상처리 되지 않았습니다.</div>
+                            <div class="failIcon"></div>
+
+                            <div class="payIn2">
+                                <div class="pay-inner">
+                                    <ul class="guide">
+                                        <li><a>예약내용과 결제수단을 확인 후 재시도 해보시기 바랍니다.</a></li>
+                                        <li><a>지속적으로 결제가 이루어지지 않는 경우 고객상담실로 문의 주시기 바랍니다.</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="btnWrap">
+                                <button class="retryBtn">다시 시도하기</button>
+                                <button class="payBtn">다른 카드로 결제하기</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <!--main-->
+        </div>
+        <!-- body inner -->
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        //메뉴 보이기
+        // const Menu = $(".mainMenu");
+        // const MenuBg = $(".nav_bg");
+        // const Ham = $(".ham");
+
+        // Ham.click(function (e) {
+        //     e.preventDefault();
+        //     Menu.toggleClass("block");
+        //     MenuBg.toggleClass("block");
+        // });
+    
+        // document.querySelector(".ham").addEventListener("click", () => {
+        //     document.querySelector(".mainMenu").classList.toggle("show");
+        // });
+    </script>
+</body>
+
+</html>

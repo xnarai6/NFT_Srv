@@ -1,0 +1,146 @@
+@charset "UTF-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
+
+
+@media only all and (max-width:1025px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+	#main .container {padding:0 20px;}
+}
+@media only all and (max-width:820px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .container {padding:0 15px;}
+}
+@media only all and (max-width:768px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .container {padding:0 15px;}
+}
+
+@media only all and (max-width:759px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .container {padding:0 15px;}
+}
+@media only all and (max-width:420px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .container {padding:0 15px;}
+}
+
+
+#main {height: auto; font-family: 'Noto Sans KR'; margin-bottom: 50px;}
+#main .search-inner {position: relative; padding-top: 55px;}
+#main .search-inner .searchBar {display: flex;  position: absolute;  justify-content: space-between;  width: 88%; height: 50px; background: #fff; border: 1px solid #ccc; border-radius: 8px;}
+#main .search-inner .searchBar i {font-size: 3rem; padding: 10px 30px;}
+#main .search-inner .searchBar i span {font-size: 2rem; margin-left: 10px; }
+#main .search-inner .searchBtn {display: inline-block; position: absolute; right: 0; padding: 15px 60px; background: #3662d8; border-radius: 8px; color: #fff;}
+
+#main #hotelWrap {position: relative; margin-top: 100px;}
+#main .hotelList {}
+#main .hotelList .hotel-inner {}
+
+.hotelList .hotel-inner ul {}
+.hotelList .hotel-inner ul li {position: relative; width: 100%; height: 254px; border-radius: 8px; background: #fff; }
+.hotelList .hotel-inner ul li a {display: flex;}
+
+.hotelList .hotel-inner .hotels {margin-bottom: 30px;}
+.hotelList .hotel-inner .hotels img { width: 382px; height: 254px; border-radius: 8px 0 0 8px;}
+
+
+
+.hotelList .hotel-inner .hotels .info {padding-left: 20px; text-align: left;}
+.hotelList .hotel-inner .hotels .info .info-left {position: relative; float: left; }
+.hotelList .hotel-inner .hotels .info .info-left .hotelName {padding-top: 20px; font-size: 2rem; font-weight: 500; letter-spacing: 0.6px; text-align: left;}
+.hotelList .hotel-inner .hotels .info .info-left .hotelAddress {font-size: 1.6rem; font-weight: 300;}
+.hotelList .hotel-inner .hotels .info .info-left .hotelEx {width: 500px; padding: 10px 0px; font-size: 1.4rem; }
+
+.hotelList .hotel-inner .hotels .info .info-left .notice {font-size: 1.4rem; padding: 20px 0 2px;}
+.hotelList .hotel-inner .hotels .info .info-left .notice .stan1 {display: block; color: #318672;  letter-spacing: 0.42px; }
+.hotelList .hotel-inner .hotels .info .info-left .notice .grade {display: inline-block;}
+.hotelList .hotel-inner .hotels .info .info-left .notice .review {display: inline-block;}
+
+
+.hotelList .hotel-inner .hotels .info .info-right { position: absolute; bottom: 80px; right: 20px; text-align: right;}
+.hotelList .hotel-inner .hotels .info .info-right .hotelPrice {font-size: 2.4rem; font-weight: bold;}
+.hotelList .hotel-inner .hotels .info .info-right .stan2 {display: block;}
+.hotelList .hotel-inner .hotels .info .info-right .tax {display: block; }
+.hotelList .hotel-inner .hotels .info .inqBtn {position: absolute; display: inline-block; background: #3662d8; padding: 15px 47px; color: #fff; border-radius: 8px; bottom: 20px; right: 20px;}
+
+
+@media only all and (max-width:1280px){
+	#main .search-inner .searchBar {width: 85%;}
+
+    
+}
+
+@media only all and (max-width:1179px){
+	#main .search-inner .searchBar {width: 83%;}
+    
+    .hotelList .hotel-inner .hotels .info .info-right .hotelPrice { font-size: 2rem}
+
+}
+
+@media only all and (max-width:1025px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+    #main .search-inner .searchBar {width: 80%;}
+    
+    .hotelList .hotel-inner .hotels .info .info-left .hotelEx {width: 400px; }
+    .hotelList .hotel-inner .hotels .info .info-left .notice {padding: 0px; }
+    .hotelList .hotel-inner .hotels .info .info-left .notice .grade {display: block;}
+    .hotelList .hotel-inner .hotels .info .info-left {display: block; bottom: 10px;}
+
+    .hotelList .hotel-inner .hotels .info .info-right {bottom: 20px; right: 165px;}
+    .hotelList .hotel-inner .hotels .info .info-right .hotelPrice {display: block;}
+    .hotelList .hotel-inner .hotels .info .info-right .stan2 {display: none;}
+    .hotelList .hotel-inner .hotels .info .info-right .tax { display: inline-block;}
+    .hotelList .hotel-inner .hotels .info .inqBtn {padding: 13px 40px; bottom: 20px; right: 20px;}
+}
+
+@media only all and (max-width:890px){
+    .hotelList .hotel-inner ul li {width: 100%; height: 280px; }
+    .hotelList .hotel-inner ul li a {height: 280px;}
+    .hotelList .hotel-inner .hotels img {width: 40%; height: 100%;}
+    .hotelList .hotel-inner .hotels .info .info-left .hotelEx {width: 350px; }
+    .hotelList .hotel-inner .hotels .info .info-left .notice {font-size: 1.2rem; padding: 30px 0 0;}
+
+    .hotelList .hotel-inner .hotels .info .info-right {bottom: 20px; right: 165px;}
+    .hotelList .hotel-inner .hotels .info .info-right .hotelPrice {font-size: 1.8rem;}
+    .hotelList .hotel-inner .hotels .info .info-right .tax {font-size: 1.2rem;}
+}
+
+@media only all and (max-width:790px){
+    #main .search-inner .searchBar {width: 77%;}
+}
+
+@media only all and (max-width:759px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .search-inner .searchBar {width: 73%;}
+    .hotelList .hotel-inner .hotels .info .inqBtn {padding: 10px 30px;}
+    .hotelList .hotel-inner .hotels .info .info-right { right: 140px;}
+    /* button {width: 80%; font: 1.4rem;} */
+}
+
+@media only all and (max-width:560px) {/*기본 560 + 패딩 15 이하 모바일 */
+    #main .container {padding:0 20px;}
+    #main .search-inner .searchBar {width: 68%;}
+    .hotelList .hotel-inner ul li { width: 500px; height: 530px;}
+    .hotelList .hotel-inner ul li a {display: inline-block; width: 100%;}
+    
+    
+    .hotelList .hotel-inner .hotels img { width: 100%; height: 254px; border-radius: 8px 8px 0 0;}
+    .hotelList .hotel-inner .hotels .info .info-left .hotelEx {width: 470px; }
+    .hotelList .hotel-inner .hotels .info .info-left .notice {font-size: 1.4rem; padding: 30px 0;}
+    .hotelList .hotel-inner .hotels .info .info-right {bottom: 75px; right: 20px;}
+    .hotelList .hotel-inner .hotels .info .inqBtn {padding: 13px 50px; bottom: 20px; right: 20px;}
+}
+@media (max-device-width:420px) {/*기본 420 + 패딩 15 이하 모바일 */
+    
+    #main .search-inner .searchBar {width: 100%;}
+    #main .search-inner .searchBtn {display: none;}
+    #main .search-inner .searchBar i {font-size: 2.5rem; padding: 10px 20px;}
+    #main .search-inner .searchBar i span {font-size: 1.8rem; }
+    
+
+    .hotelList .hotel-inner ul li { width: 100%; height: 580px;}
+    .hotelList .hotel-inner .hotels img { border-radius: 8px 8px 0 0;}
+
+    .hotelList .hotel-inner .hotels .info .info-left .hotelEx {width: 95%; }
+    .hotelList .hotel-inner .hotels .info .info-left .notice {padding: 60px 0 0;}
+    .hotelList .hotel-inner .hotels .info .info-right {bottom: 75px; right: 20px;}
+    .hotelList .hotel-inner .hotels .info .inqBtn {padding: 13px 50px; bottom: 20px; right: 20px;}
+}
+
+
+
+

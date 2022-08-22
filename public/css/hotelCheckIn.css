@@ -1,0 +1,247 @@
+@charset "UTF-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
+
+@media only all and (max-width:1200px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+	#main .container {padding:0 20px;}
+}
+@media only all and (max-width:1025px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+	#main .container {padding:0 20px;}
+}
+
+@media only all and (max-width:759px) {/*기본 759 + 패딩 15 이하 모바일 */
+
+}
+
+@media only all and (max-width:576px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .container {padding:0 15px;}
+}
+
+@media only all and (max-width:420px) {/*기본 759 + 패딩 15 이하 모바일 */
+	#main .container {padding:0 15px;}
+}
+
+
+* {word-break: break-all; }
+#main { height: auto; margin: 50px 0; color: #141d38; overflow-x: hidden; }
+
+input[type='radio'], input[type='radio']:checked {vertical-align: middle; border-radius: 100%; width: 16px; height: 16px; margin-right: 5px; }
+input[type='radio']:checked {accent-color: black;}
+input[type='text'], input[type='email'] {padding-left: 10px;}
+
+
+/*freeCancel*/
+#freeCancel {width: 100%; background: #fff; height: 85px; border-radius: 5px; position: relative; padding: 20px 26px; margin-bottom: 40px;}
+#freeCancel img {float: left; width: 44px; }
+#freeCancel .text {position: absolute; margin: 2px 60px;}
+#freeCancel p {font-size: 1.5rem; font-weight: 800; }
+#freeCancel span {font-size: 1.2rem; }
+
+
+/*secondary-content*/
+#secondary-content {float: right; width: 32%;}
+#secondary-content .contWrap {}
+
+
+/*hotelInfo*/
+#hotelInfo {position: relative; background: #fff; margin-bottom: 30px;}
+#hotelInfo .hotelImg {overflow: hidden; max-height: 190px; min-height: 100px; border-top-left-radius: 5px; border-top-right-radius: 5px; }
+#hotelInfo .hotelImg img {width: 100%; height: auto;}
+#hotelInfo .hotelImg .hotelName {position: absolute; font-size: 1.6rem; color: #fff; z-index: 100; top: 35%; left: 10px;}
+
+#hotelInfo .hotelContWrap {width: 100%; height: 235px; padding: 20px; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;}
+#hotelInfo .hotelContWrap .hotelCont {font-size: 1.4rem;  color: #484848; }
+#hotelInfo .hotelContWrap .hotelCont .top {font-size: 1.5rem; }
+#hotelInfo .hotelContWrap .hotelCont .grade {display: inline-block;  }
+#hotelInfo .hotelContWrap .hotelCont .grade_txt {display: inline-block; margin-left: 5px;}
+#hotelInfo .hotelContWrap .hotelCont .review {display: inline-block;}
+
+
+#hotelInfo .hotelContWrap .hotelCont p {padding: 10px 0;}
+#hotelInfo .hotelContWrap .hotelCont .roomInfo {display: inline-block; padding: 10px 0;}
+#hotelInfo .hotelContWrap .hotelCont .roomInfo b {color: #000;}
+
+
+#hotelInfo .hotelContWrap .hotelCont .chkDate {}
+#hotelInfo .hotelContWrap .hotelCont .chkDate span {display: block; padding: 0;}
+
+
+
+/*feeInfo*/
+#feeInfo {position: relative; background: #fff; height: 340px; }
+#feeInfo .priceTitle {border-bottom: 1px solid #c9c9c9; width: 100%; padding: 15px 20px;} 
+#feeInfo .priceTitle h2 {font-size: 2rem; }
+
+#feeInfo .feeContWrap {padding: 20px;}
+
+#feeInfo .feeContWrap .roomPriceInner {font-size: 1.6rem; display: flex; justify-content: space-between; margin-bottom: 10px;}
+#feeInfo .feeContWrap .roomPriceInner .amountLabel {}
+#feeInfo .feeContWrap .roomPriceInner .amountValue {}
+#feeInfo .feeContWrap .pointApply {font-size: 1.5rem; color: #828282; }
+
+#feeInfo .feeContWrap .taxesInner {font-size: 1.6rem; display: flex; justify-content: space-between; padding: 25px 0;}
+#feeInfo .feeContWrap .taxesInner .taxesLink {}
+
+
+#feeInfo .feeContWrap .taxesInner .taxesValue {}
+
+#feeInfo .feeContWrap .totalInner {display: flex; justify-content: space-between; font-size: 1.7rem; margin: 25px 0; font-weight: 700;}
+#feeInfo .feeContWrap .totalInner .totalLabel {}
+#feeInfo .feeContWrap .totalInner .totalValue {}
+
+#feeInfo .feeContWrap .couponInner {color: #2f80ed; font-weight: 600;}
+#feeInfo .feeContWrap .couponInner .couponLink {}
+
+
+
+/*primary-content*/
+#primary-content {float: left; width: 66%;}
+#primary-content .contWrap {}
+
+input {height: 30px;}
+
+section {width: 100%; background: #fff; padding: 25px; margin-bottom: 20px; border-radius: 5px;}
+.secTitle {font-size: 1.6rem; color: #000000; display: inline-block;}
+b {color: #f00; display: inline-block;}
+select {display: inline-block; height: 30px; background: #ececec;}
+
+/*loginID*/
+#loginID {position: relative;  height: 140px;  }
+
+#loginID .loginEmail {font-size: 1.8rem; font-weight: 600; padding: 7px 0;}
+#loginID .reward {font-size: 1.5rem; color: #2f80ed;}
+
+
+/*orderClient*/
+#orderClient {position: relative; height: 280px;}
+#orderClient > div {padding: 20px 0;}
+
+#orderClient label { display: block; margin-bottom: 6px;}
+
+#orderClient .input_phone {}
+#orderClient p {color: #a8a8a8; padding: 5px 0;}
+#orderClient .input_email {width: 400px;}
+
+
+/*rezInfo*/
+#rezInfo {}
+#rezInfo .roomInfo {display: inline-block; color: #484848; font-size: 1.5rem;}
+
+#rezInfo > div {padding: 20px 0;}
+#rezInfo label {display: block; margin-bottom: 6px;}
+
+#rezInfo .input_name {width: 340px;}
+
+#rezInfo .title {font-size: 1.3rem; }
+#rezInfo .smokingWrap {font-size: 1.3rem; padding: 15px 0;}
+
+
+#rezInfo .smokingWrap label {display: inline-block; position: relative; top: 3px; margin-right: 20px;}
+
+
+
+#rezInfo p {color: #828282; font-size: 1.3rem;}
+
+
+
+
+
+
+/*methodPay*/
+#methodPay {}
+#methodPay .secTitle {padding-bottom: 28px; display: block;}
+#methodPay .myMileage {padding-bottom: 15px; }
+#methodPay .title  {font-size: 1.6rem; display: inline-block}
+#methodPay .mileage {font-size: 1.6rem; color: #2f80ed; font-weight: 600; }
+
+#methodPay .myMileageUse {padding-bottom: 30px;}
+#methodPay .myMileageUse .input_mileage {width: 225px; height: 45px; text-align: right; padding-right: 10px; margin-right: 5px;}
+#methodPay .myMileageUse input[type="button"] {width: 95px; height: 45px; background-color: #dadada; border: none; border-radius: 3px; }
+
+#methodPay .methodBox {width: 330px; height: 55px; padding: 17px 25px; border: 1px solid #8692a6; position: relative; border-radius: 5px;} 
+#methodPay .methodBox span {}
+#methodPay .methodBox span::after {content: '>'; font-size: 1.8rem;  position: absolute; right: 15px; top: 25%; color: #8692a6;}
+
+
+/*payAmount*/
+section#payAmount {padding: 0;}
+#payAmount {position: relative; }
+#payAmount .finalAmount {display: flex; justify-content: space-between; border-bottom: 1px solid #c9c9c9; padding: 25px; font-size: 1.8rem; font-weight: 600;}
+#payAmount .finalAmount span {}
+#payAmount .payAmountWrap {padding: 25px; font-size: 1.5rem; color: #4f4f4f;}
+
+#payAmount .payAmountWrap span {padding: 10px 0;}
+#payAmount .payAmountWrap .rezAmount {display: flex; justify-content: space-between;}
+#payAmount .payAmountWrap .rezAmount span {}
+
+#payAmount .payAmountWrap .useMileage {display: flex; justify-content: space-between;}
+#payAmount .payAmountWrap .useMileage span {}
+#payAmount .payAmountWrap .useMileage span:last-child {color: #eb5757;}
+
+
+
+/*rezGuide*/
+#rezGuide {}
+#rezGuide > div {padding: 20px 0;}
+#rezGuide h6 {font-size: 1.4rem; font-weight: 600; margin-bottom: 8px;}
+#rezGuide ul {padding: 15px 20px;}
+#rezGuide ul li {list-style: disc; padding: 10px 0;}
+#rezGuide ul.notice li {padding: 5px 0;}
+#rezGuide p {padding: 2px 0;}
+
+#rezGuide .txt p {padding: 15px 0;}
+#rezGuide .txt p:first-child {color: #2f80ed; font-weight: 600;}
+
+
+#rezGuide label {display: inline-block; position: relative; top: 3px; margin-bottom: 10px;}
+input[type='checkbox'], input[type='checkbox']:checked {vertical-align: middle; border-radius: 100%; width: 16px; height: 16px; margin-right: 5px; }
+input[type='checkbox']:checked {accent-color: black;}
+
+#rezGuide span {display: block; padding: 3px 25px; color:#2f80ed; position: relative;}
+#rezGuide span:hover {text-decoration: underline;}
+#rezGuide span::after {content: ''; background-image: url(../images/temps.jpg); width: 18px; height: 18px; position: absolute; background-repeat: no-repeat; margin-left: 5px; top: 5px;}
+#rezGuide .payBtn {padding: 15px 140px; background: #3e495d; border-radius: 8px; color: #fff; font-size: 1.8rem;}
+#rezGuide .payBtn:hover {background: #555f71;}
+
+@media only all and (max-width:1200px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+	
+}
+@media only all and (max-width:1025px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+	#hotelInfo .hotelImg {height: 180px;}
+	#hotelInfo .hotelContWrap .hotelCont {font-size: 1.3rem;}
+	#hotelInfo .hotelContWrap .hotelCont .top {font-size: 1.4rem; }
+}
+
+
+@media only all and (max-width:759px) {/*기본 759 + 패딩 15 이하 모바일 */
+	
+	#secondary-content {float: left; width: 100%; margin-bottom: 20px;}
+	#hotelInfo .hotelImg {width: 100%; max-height: 310px; min-height: 300px;}
+	#hotelInfo .hotelImg .hotelName {top: 50%;}
+
+	#primary-content {float: left; width: 100%;}
+	#orderClient .input_email {width: 50vw;}
+}
+
+@media only all and (max-width:576px) {/*기본 759 + 패딩 15 이하 모바일 */
+	.secTitle {font-size: 1.3rem;}
+	#freeCancel {height: 140px;}
+	#freeCancel img {position: relative; top: 25px;}
+	#loginID .loginEmail {font-size: 1.6rem;}
+	#loginID .reward {font-size: 1.4rem;}
+}
+
+@media only all and (max-width:420px) {/*기본 759 + 패딩 15 이하 모바일 */
+	
+	#freeCancel p {font-size: 1.3rem;}
+	#hotelInfo .hotelImg {min-height: 200px;}
+	#hotelInfo .hotelImg .hotelName {top: 38%;}
+	#rezInfo .input_name {width: 50vw;}
+	#methodPay .methodBox {width: 200px;}
+	#myPointUse p {font-size: 1.3rem;}
+	#methodPay .methodBox {width: 100%;}
+	#rezGuide .payBtn {padding: 15px 100px; font-size: 1.5rem;}
+	#methodPay .myMileageUse .input_mileage {width: 60%;}
+	#methodPay .myMileageUse input[type="button"] {width: 35%;}
+	
+}

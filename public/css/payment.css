@@ -1,0 +1,78 @@
+@charset "utf-8";
+
+#wrap {}
+
+#payWrap {position: relative; display: flex; justify-content: center; margin: 0 auto; width: 100%;}
+#payWrap .payTitK {font-size: 1.6rem; font-weight: 500; display: inline-block; position: absolute; top: -5%; right: 0;}
+
+#payWrap .payBox {position: relative; width: 534px; height: 633px; background: #fff; margin: 100px 0; border-radius: 8px; border: 1px solid #ccc; padding: 40px;}
+
+
+#payWrap .payBox .payTitE {font-size: 1.6rem; font-weight: 600; color: #444;}
+#payWrap .payBox .guideTxt {padding: 20px 0 44px; font-size: 2rem; font-weight: 600; color: #444; text-align: center;}
+#payWrap .payBox .guideTxt i {font-weight: 700; }
+
+
+#payWrap .payBox .guideTxt i.green {color: #95c11f;}
+#payWrap .payBox .guideTxt i.red {color: #ff4d4f;}
+#payWrap .payBox .comIcon {background-image: url(../images/complete.png); background-repeat: no-repeat; width: 60px; height: 60px; position: absolute; transform: translate(-50%, -50%); left: 50%; top: 35%; }
+#payWrap .payBox .failIcon {background-image: url(../images/failure.png); background-repeat: no-repeat; width: 60px; height: 60px; position: absolute; transform: translate(-50%, -50%); left: 50%; top: 35%; }
+#payWrap .payBox .btnWrap {}
+#payWrap .payBox button {position: relative; color: #fff; font-size: 1.8rem; font-weight: 700; width: 85%; height: 60px; border-radius: 2px; margin: 0 auto;}
+
+/*payIn1*/
+#payWrap .payBox .payIn1 {position: relative; width: 300px;margin: 0 auto; top: 20%;}
+#payWrap .payBox .payIn1 .pay-inner {padding: 12px 0;}
+#payWrap .payBox .payIn1::before { content: ""; width: 300px; height: 1px; display: block; background: #bbb; margin-top: 10px; }
+#payWrap .payBox .payIn1::after { content: ""; width: 300px; height: 1px; display: block; background: #bbb;}
+#payWrap .payBox .payIn1 ul {display: flex; justify-content: space-between; font-size: 1.4rem; color: #bbb; font-weight: 600;}
+#payWrap .payBox .payIn1 ul li {display: inline-block; padding: 5px 0;}
+#payWrap .payBox .price {color: #95c11f; }
+#payWrap .payBox .card {color: #444;}
+#payWrap .payBox .shortcutBtn {position: absolute; background-color: #95c11f; transform: translate(-50%, -50%); left: 50%;  bottom: 40px;}
+
+
+
+/*payIn2*/
+#payWrap .payBox .payIn2 {position: relative; width: 300px; margin: 0 auto; top: 20%;}
+#payWrap .payBox .payIn2 .pay-inner {padding: 8px 0;}
+#payWrap .payBox .payIn2::before { content: ""; width: 300px; height: 1px; display: block; background: #bbb; margin-top: 10px; }
+#payWrap .payBox .payIn2::after { content: ""; width: 300px; height: 1px; display: block; background: #bbb;}
+#payWrap .payBox .payIn2 ul {font-size: 1.2rem; color: #828282; font-weight: 500; list-style: disc; letter-spacing: -1.2px; }
+#payWrap .payBox .payIn2 ul li { padding: 1px 0; }
+#payWrap .payBox .payIn2 ul li a { margin-left: -8px;  cursor: default; text-align: left;}
+#payWrap .payBox .price { color: #95c11f; }
+#payWrap .payBox .card {color: #444;}
+
+
+#payWrap .payBox .retryBtn {position: absolute; background-color: #ff4d4f;  transform: translate(-50%, -50%); left: 50%; bottom: 120px;}
+#payWrap .payBox .payBtn {position: absolute;  background-color: #828282; transform: translate(-50%, -50%); left: 50%; bottom: 40px;}
+
+
+@media only all and (max-width:1179px){
+	.payBox {max-width:95%}
+    .payIn1, .payIn2 {max-width: 95%;}
+    .payIn1::before, .payIn1::after {max-width: 100%;}
+    .payIn2::before, .payIn2::after {max-width: 100%;}
+    
+}
+@media only all and (max-width:779px){
+}
+
+@media only all and (max-width:1025px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+
+}
+@media only all and (max-width:759px) {/*기본 759 + 패딩 15 이하 모바일 */
+	.payBox .payIn1 {padding: 15px;}
+	.payBox .payIn2 {padding: 15px;}
+    button {width: 80%; font: 1.4rem;}
+}
+
+@media only all and (max-width:560px) {/*기본 560 + 패딩 15 이하 모바일 */
+
+}
+@media only all and (max-width:420) {/*기본 420 + 패딩 15 이하 모바일 */
+    
+}
+
+

@@ -1,0 +1,165 @@
+.iphone main {
+    padding: 10px;
+}
+
+.android main {
+    padding: 10px;
+}
+
+
+
+#headCountModal { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed; 
+    left: 0; top: 0; 
+    width: 100%; height: 100vh; 
+    z-index: 1000; 
+    overflow: hidden;
+    display: none;
+}
+
+
+
+
+#headCountModal .modal-bg {
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+}
+
+
+
+#headCountModal .modal-cont {
+    
+} 
+
+#headCountModal .modal-cont .closeBtn {
+    font-size: 2.5rem;
+    left: 2.5%; top: 12px;
+    position: absolute;
+    color: #000;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+  
+.modal-view {
+    background: #fff;
+    min-width: 400px;
+    width: 30vw;
+    height: 80vh;
+    border: 1px solid #f2f2f2;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    left: 50%; top: 50%;
+    transform: translate(-50%, 10%);
+
+   
+}
+.modal-view .view-header {
+    border-bottom: 1px solid #b1b1b1;
+    font-size: 1.8rem;
+    text-align: left;
+    padding: 20px 40px;
+    font-weight: 700;
+}
+.modal-view .headCountWrap {
+    
+}
+.modal-view .headCountWrap .roomCountInner {
+    padding: 20px;
+    border-bottom: 1px solid rgb(126, 126, 126);
+}
+.headCountWrap .roomCountInner p {}
+.headCountWrap .roomCountInner span {
+    float: left;
+    font-size: 1.5rem; 
+}
+.headCountWrap .roomCountInner button {
+    border-radius: 50%; 
+    font-size: 2rem; 
+    width: 35px; height: 35px; 
+    border: 1px solid rgb(139, 139, 139);
+}
+
+.headCountWrap .roomCountInner .adultInner {
+    padding: 10px 0;
+}
+.headCountWrap .roomCountInner .adultInner .adultCountWrap {
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center; 
+    gap: 15px;
+}
+
+
+
+.headCountWrap .roomCountInner .childInner {
+    padding: 10px 0;
+}
+.headCountWrap .roomCountInner .childInner .child::after {
+    content: '(만 0-17세)'; 
+    font-size: 1.2rem; 
+    display: block;
+}
+.headCountWrap .roomCountInner .childInner .childCountWrap {
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center; 
+    gap: 15px;}
+
+.headCountWrap .roomBtnWrap {
+    float: right; 
+    padding: 15px; 
+    right: 0;
+}
+
+.headCountWrap .roomBtnWrap button {
+    display: block; 
+    padding: 10px 5px; 
+    font-size: 1.6rem; 
+    background: transparent;
+    color: rgb(69, 85, 123); 
+}
+.headCountWrap .roomBtnWrap button:hover { 
+    background: rgb(108, 117, 135); 
+    border-radius: 8px; 
+    color: white;
+}
+
+.completeBtn {
+    display: block; 
+    position: absolute; 
+    left: 13px; bottom: 10px; 
+    width: 95%; padding: 15px 0; 
+    border-radius: 8px; 
+    background: #3e495d;  
+    color: #fff;
+}
+
+.completeBtn:hover {
+    background: #2f384c;
+}
+
+@media (max-width: 800px) {
+    #modal .modal-cont {
+        padding: 20px;
+    }
+
+    #modal .modal-bg .modal-cont .closeBtn {
+        top: 5%;
+        right: 10%;
+        cursor: pointer;
+    }
+
+    .modal-view {
+        height: 85vh;
+    }
+
+
+}
+  

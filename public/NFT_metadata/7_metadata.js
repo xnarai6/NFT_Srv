@@ -1,0 +1,1 @@
+{"userID":"xnarai6@naver.com","property":{"lat":"123.56","lng":"34.657"}}

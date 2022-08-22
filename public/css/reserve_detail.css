@@ -1,0 +1,271 @@
+@charset "UTF-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
+
+
+* {word-break: break-all; }
+#main { height: auto; margin: 50px 0; color: #141d38; overflow-x: hidden; }
+
+/* .imgWrap { position: relative; padding: 55px 0px 15px; border: 0; width: 100%; overflow: hidden; }
+.imgWrap .img-inner {}
+.imgWrap img {background-size: contain; object-fit: contain;}
+.imgWrap .img-inner .mainImg {float: left; display: inline-block; max-width: 680px; width: 50%; height: 380px;  align-content: center; }
+.imgWrap .img-inner .etcImg1 {float: left; display: inline-block;  width: 25%; height: 190px;  vertical-align: top; }
+.imgWrap .img-inner .etcImg2 { display: inline-block;  width: 25%; height: 190px;  vertical-align: top; }
+.imgWrap .img-inner .etcImg3 {float: left; display: inline-block;  width: 25%; height: 190px;  }
+.imgWrap .img-inner .etcImg4 {display: inline-block;  width: 25%; height: 190px;   } */
+
+.imgWrap {}
+
+.imgList {margin: 0; padding: 0;}
+
+.imgList li:nth-child(2) {width: 50%;}
+.imgList li {float: left; width: 25%; margin: 0; padding: 0; position: relative; overflow: hidden;}
+.imgList li img {display: block; width: 100%; height: auto; overflow: hidden;}
+
+
+
+
+.nav_bar {position: relative; display: inline-block; width: 100%; height: 55px; background: #fff;  margin-top: 50px; color: #343b53;}
+.nav_bar ul {width: 100%; height: 100%; font-size: 1.4rem; line-height: 16px; }
+.nav_bar ul li {display: inline-block; }
+.nav_bar ul li a {display: inline-block; padding: 20px 30px;}
+.nav_bar ul li a:hover {border-bottom: 2px solid rgb(35, 47, 87);}
+.nav_bar ul li a:active {border-bottom: 2px solid rgb(67, 85, 144);}
+
+
+
+
+/* intro */
+#intro {width: 100%; height: 640px; background: #fff; color: #141d38;  border-radius: 5px; margin-bottom: 80px;}
+#intro hr {height: 1px; padding: 0; margin: 0; background: #a7a7a7;}
+.intro-inner {position: relative; padding: 12px 24px; }
+#intro .intro-inner .hotelName {font-size: 2.5em;  display: inline-block; padding: 10px 0;}
+#intro .intro-inner .stan {font-size: 1.8rem; padding: 7px 0;}
+#intro .intro-inner .tax {font-size: 1.8rem; padding: 5px 0; }
+#intro .intro-inner .grade { font-size: 1.6rem; padding: 20px 0;}
+#intro .intro-inner .grade i { }
+
+#intro .intro-inner .facTitle {font-size: 2rem; padding: 10px 0 20px; }
+#intro .intro-inner .facWrap {}
+#intro .intro-inner .facWrap ul {display: grid; grid-template-columns: repeat(2, 430px); gap: 10px;}
+#intro .intro-inner .facWrap ul li {display: block; position: relative; padding: 5px 0; height: 40px;}
+#intro .intro-inner .facWrap ul li em {font-style: normal; font-size: 16px; line-height: 16px; margin-left: 10px; position: absolute; bottom: 15px;}
+
+
+#intro .intro-inner svg { width: 2.5rem;  }
+
+#intro .intro-inner .cleanTitle {font-size: 2rem; padding: 30px 0 20px;  }
+#intro .intro-inner .cleanWrap {   }
+#intro .intro-inner .cleanWrap ul { display: grid; grid-template-columns: repeat(2, 430px); gap: 10px;   }
+#intro .intro-inner .cleanWrap ul li { display: block; position: relative; padding: 5px 0;  height: 40px; }
+#intro .intro-inner .cleanWrap ul li em { font-style: normal; font-size: 16px; line-height: 16px; margin-left: 10px; position: absolute; bottom: 15px; }
+
+
+
+
+/* roomChoice */
+
+.is-hidden {display: none;}
+
+#roomChoice {width: 100%; height: auto; padding-bottom: 100px;}
+#roomChoice .roomChoiceInner {}
+#roomChoice .roomChoiceInner .roomTitle {}
+
+.noRoomMsg {width: 100%; height: 45px; background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 20px;}
+.noRoomMsg p {color: rgb(215, 4, 4);}
+
+/*formWrapper*/
+
+
+#formWrapper {position: relative; width: 100%; height: auto; margin-bottom: 20px; }
+#formWrapper form {}
+#formWrapper .roomStateWrap { display: flex; justify-content: space-between; gap: 10px; flex-wrap: nowrap;}
+#formWrapper .roomStateWrap .formWrap {}
+
+.grow1 {flex-grow: 2; flex-basis: 20%;}
+.grow3 {flex-basis: 35%;}
+.grow2 {flex-grow: 1; }
+
+.formWrap .formInner:last-child {}
+.formWrap .formInner i {font-size: 2rem; margin: 15px 10px;}
+.formWrap .formInner svg {width: 2.5rem; }
+.formWrap .formInner {height: 54px; background: #fff; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; }
+.formWrap .formInner .field-label {font-size: 1.3rem; font-weight: 500; position: absolute;}
+.formWrap .formInner .field-label span {font-size: 1.2rem; } 
+
+.formWrap .formInner button {font-size: 1.6rem; vertical-align: middle;  background-color: transparent;}
+
+
+.formWrap .rezDateWrap {}
+.formWrap .rezDateWrap .formInner .field-label input {}
+
+.formWrap .rezDateWrap .formInner .hotelsChkInBtn {}
+
+
+.formWrap .headCountWrap {}
+.formWrap .headCountWrap .formInner .field-label input {}
+.formWrap .headCountWrap .formInner .headCountBtn {width: 100%; height: 100%;   }
+
+
+
+.formWrap .formInner input[type="button"] {padding: 0 80px; font-size: 1.5rem; height: 54px; background: #3e495d; color: #fff; border-radius: 8px; border: none;}
+
+/* .formWrap .submitBtn { padding: 0 80px; font-size: 1.5rem; height: 54px; background: #3e495d; color: #fff; border-radius: 8px; border: none;} */
+
+
+
+
+
+
+
+
+
+
+
+#roomChoice .roomChoiceInner .roomBoxWrap {position: relative; width: 100%;  display: grid; grid-template-columns: repeat(3, 440px); gap: 20px; }
+#roomChoice .roomChoiceInner .roomBoxWrap .roomBox {display: inline-block; width: 440px; overflow: hidden; box-sizing: border-box; border-radius: 10px; }
+#roomChoice .roomChoiceInner .roomBoxWrap .roomBox img {width: 100%; height: 190px;  }
+#roomChoice .roomChoiceInner .roomBoxWrap .roomBox .roomImg {}
+#roomChoice .roomChoiceInner .roomBoxWrap .roomBox .roomCont {width: 100%; height: 248px; background: #fff;  padding: 20px 15px; position: relative;}
+
+
+
+
+/* contLeft */
+.roomBox .roomCont .contLeft {float: left; text-align: left;}
+.contLeft .roomName {font-size: 1.8rem;}
+
+.contLeft .bedSize::before {content: url(../images/bed.svg); width: 2.5rem; height: 2.5rem; display: inline-block; margin-right: 5px; bottom: 12px;}
+.contLeft .bedSize {display: inline-block; padding: 10px 0; font-size: 1.6rem}
+.contLeft ul {}
+.contLeft ul li {padding: 5px 0; font-size: 1.4rem;}
+.contLeft ul li::before {content: url(../images/check.svg); width: 2.5rem; height: 2.5rem; display: inline-block; margin-right: 5px;}
+
+/* contRight */
+.roomBox .roomCont .contRight {float: right;  text-align: right; font-size: 1.5rem; position: absolute; right: 20px; bottom: 80px;}
+.roomBox .roomCont .contRight > div {padding: 2px 0;}
+.contRight .price { font-family: 'Poppins'; font-weight: 700; font-size: 2rem;}
+.contRight .tax { color: #626262;} 
+.contRight .stanDay {color: #396b44;}
+.contRight .reserveBtn {position: absolute; right: 0px; background: #3E495D; padding: 10px 30px; border-radius: 8px; color: #fff; display: block; z-index: 100; white-space: nowrap;  margin: 15px 0;}
+
+
+
+
+
+/* locateInfo */
+#locateInfo {width: 100%; height: auto; padding-bottom: 100px; }
+#locateInfo .locateInfoInner {}
+#locateInfo .locateInfoInner .menuTitle {}
+#locateInfo .locateInfoInner .locateWrap { width: 100%; height: 370px; background: #fff;  display: flex; justify-content: space-between; }
+#locateInfo .locateInfoInner .locateWrap .map {width: 60%; height: 100%; background-image: url(../images/map.jpg); border-top-left-radius: 5px; border-top-right-radius: 5px; }
+#locateInfo .locateInfoInner .locateWrap .mapInfo {width: 40%; height: 100%; padding: 20px; overflow: hidden; white-space: nowrap;}
+#locateInfo .locateInfoInner .locateWrap .mapInfo ul {font-size: 1.8rem; padding: 10px 0; }
+#locateInfo .locateInfoInner .locateWrap .mapInfo ul::before {content: url(../images/locate.svg); width: 2.5rem; height: 2.5rem; margin-right: 8px;}
+#locateInfo .locateInfoInner .locateWrap .mapInfo ul li {font-size: 1.4rem; margin: 5px 15px;}
+
+
+
+
+/* serviece */
+#hotelService {width: 100%; height: auto; padding-bottom: 100px; }
+#hotelService .hotelServInner {}
+#hotelService .hotelServInner .menuTitle {}
+
+#hotelService .hotelServInner .servWrap {width: 100%; height: 600px; display: flex; justify-content: space-between; flex-wrap: wrap; flex-direction: column;  background: #fff; padding: 35px; border-radius: 5px; }
+/* #service .hotelServInner .serviceWrap {display: grid; grid-template-columns: repeat(3, 1fr); grid-template-columns: repeat(3, 1fr); grid-auto-flow: dense; background: #fff; padding: 35px; } */
+/*display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));*/
+/* .serviceWrap .serviceCont:nth-child(1) {grid-column: 2 / span 2;}*/
+/* .serviceWrap .serviceCont:nth-child(2) {grid-column: span 3;} */
+/* .serviceWrap .serviceCont:nth-child(3) {order: 3;} */
+
+#roomService {width: 100%; height: auto; padding-bottom: 100px;}
+#roomService .roomServInner {}
+#roomService .roomServInner .menuTitle {}
+#roomService .roomServInner .servWrap {width: 100%; height: 400px; display: flex; justify-content: space-between; flex-wrap: wrap; flex-direction: column; background: #fff; padding: 35px; border-radius: 5px; overflow: hidden; word-break: break-all;}
+
+.servWrap .serviceCont {padding-bottom: 20px;}
+
+.servWrap .serviceCont .contHead {font-size: 1.8rem;}
+.servWrap .serviceCont .contHead svg {width: 2.5rem; height: 2.5rem; margin-right: 5px;}
+.servWrap .serviceCont .contHead span {vertical-align: top;}
+
+.servWrap .serviceCont ul {margin-left: 32px;}
+.servWrap .serviceCont ul li {font-size: 1.4rem; word-break: break-all;}
+
+/*width: 100%; height: 895px; display: flex; justify-content: space-between; flex-wrap: wrap; flex-direction: column;*/
+
+
+
+
+
+
+
+
+
+@media only all and (max-width:1200px){ 
+    .imgList li:nth-child(2) {width: 50%;}
+    .imgWrap {width: auto;}
+    .inqBtn {right: 25px;}
+    
+    #roomChoice .roomChoiceInner .roomBoxWrap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    #roomChoice .roomChoiceInner .roomBoxWrap .roomBox { width: 100%; }
+
+    #hotelService .hotelServInner .servWrap { width: 100%; height: 700px; padding: 25px;}
+
+
+}
+
+@media only all and (max-width:1025px) {/*기본 1025 + 패딩 20 이하 태블릿 */
+    #roomChoice .roomChoiceInner .roomBoxWrap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    #roomChoice .roomChoiceInner .roomBoxWrap .roomBox { width: 100%; }
+    #hotelService .hotelServInner .servWrap { width: 100%; height: 1080px; display: flex; justify-content: space-between; flex-wrap: wrap; flex-direction: column;  padding: 35px; }
+
+
+}
+
+@media only all and (max-width:759px) {/*기본 768 + 패딩 15 이하 모바일 */
+    .imgList li:nth-child(2) {width: 66.5%;}
+    .imgList li:nth-child(3) {width: 33.5%;}
+    .imgList li:nth-child(5) {width: 33.5%;}
+    
+    .imgList li:nth-child(4) {display: none;}
+    .imgList li:nth-child(6) {display: none;}
+
+    #intro {height: 750px;}
+    .inqBtn {padding: 10px 40px; right: 15px;}
+    #intro .intro-inner .facWrap ul { display: grid; grid-template-columns: repeat(2, 230px); gap: 10px; }
+    #intro .intro-inner .cleanWrap ul { display: grid; grid-template-columns: repeat(2, 230px); gap: 10px; }
+    
+    #locateInfo .locateInfoInner .locateWrap .map { width: 50%;}
+    #locateInfo .locateInfoInner .locateWrap .mapInfo { width: 50%; }
+    
+    #hotelService .hotelServInner .servWrap { width: 100%; height: auto; display: inline-block; padding: 25px; }
+
+    
+}
+
+@media only all and (max-width:576px) {/*기본 576 + 패딩 15 이하 모바일 */
+
+    .imgList li:nth-child(2) {width: 100%;}
+    .imgList .etcImg {display: none;}
+
+    .nav_bar ul li a {padding: 15px;}
+    #intro {height: 900px;}
+    #intro .intro-inner .hotelName {font-size: 2.3rem;}
+    #intro .intro-inner .stan, #intro .intro-inner .tax {font-size: 1.5rem;}
+    #intro .intro-inner .grade { font-size: 1.5rem; }
+    #roomChoice .roomChoiceInner .roomBoxWrap { display: grid; grid-template-columns: repeat(1, 100%); }
+    #roomChoice .roomChoiceInner .roomBoxWrap .roomBox {width: 450px;}
+    #locateInfo .locateInfoInner .locateWrap { width: 100%; height: auto;  display: inline-block;}
+    #locateInfo .locateInfoInner .locateWrap .map { width: 100%; height: 300px;}
+    #locateInfo .locateInfoInner .locateWrap .mapInfo { width: 100%; height: auto;}
+}
+@media only all and (max-device-width:420px) {/*기본 420 + 패딩 15 이하 모바일 */
+    #intro .intro-inner .facWrap ul { grid-template-columns: repeat(1,200px);}
+    #intro .intro-inner .cleanWrap ul { grid-template-columns: repeat(1, 200px); }
+    #roomChoice .roomChoiceInner .roomBoxWrap .roomBox {width: 100%;}
+    #roomService .roomServInner .servWrap { height: 600px;  display: inline-block;}
+}
+

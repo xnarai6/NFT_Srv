@@ -1,0 +1,63 @@
+//////////////////
+NFT 속성(metadata)
+////////////
+
+1. 행사
+{
+    "nft_type" : 1,
+    "nft_version" :"0.1",
+    "userID":"xnarai6@naver.com",
+    "member_seq":350,
+    "create_date:"2022-08-21 14:00:00"
+    "property":
+        {
+            "booth_no":"A-001",
+            "booth_name":"시냅틱웨이브부스",
+            "img1":"img1.jpg",
+            "img2":"img2.jpg",
+            "lat":"31.25466",
+            "lng":"125.266165"
+    }
+}
+
+2. 여행스템프
+{
+    "nft_type" : 2,
+    "nft_version" :"0.1",
+    "userID":"xnarai6@naver.com",
+    "member_seq":350,
+    "stamp_icon":"https://wafflestay.kr/images/icon/BTO_DDP_01.jpg"
+    "create_date:"2022-08-21 14:00:00"
+    "property":
+        {
+            "course_no":"BTO-DDP-01",	  
+            "qr_point":"BTO-DDP-01-01",
+	    "img1":"img1.jpg",
+            "img2":"img2.jpg",
+            "lat":"31.25466",
+            "lng":"125.266165"
+    }
+}
+
+
+3. 쿠폰
+{
+    "nft_type" :3 ,
+    "nft_version" :"0.1",
+    "creator_userID":"xnarai6@naver.com", //초기 발행자
+    "creator_member_seq":350, //초기 발행자
+    "coupon_no":"G52_568", //쿠폰번호
+    "coupon_icon":"https://wafflestay.kr/images/icon/BTO_DDP_01.jpg"
+    "create_date:"2022-08-21 14:00:00"
+    "property":
+        {
+            "iss_name":"YoungAndFuture",
+            "iss_code":"001",
+            "reason":"monthlycoupon",
+            "amount":"10000",
+            "str_date":"2022-08-20 00:00:00",
+            "exp_date":"2023-08-20 00:00:00",
+    }
+}
+
+
