@@ -8,6 +8,8 @@ const ethTx = require('ethereumjs-tx').Transaction
 const readline = require('readline');
 const Tx = require('ethereumjs-tx').Transaction;
 
+const {TSNFT} = require("./TSNFT");
+
 
 
 // 메타마스크지갑
@@ -37,130 +39,396 @@ var options = {
  * description
  *  NFT 발급전에 QRcode + GPS 정보확인
  * 
- jwt payload content
+//booth, 행사일 경우
 {
-    "version": "001", // QRcode 버전
-	"booth_no": A01,  // Booth 번호
-    "booth_name":"시냅틱웨이브부스", // booth 이름
-    "type": "BOOTH",  // BOOTH : 부스타입, STAGE : 행사장
-    "iss": "SYNAPTICWAVE", // booth 개설사업자이름  
+	"version": "0.1", // QRcode 버전
+  "nft_type": 2,  // 0: 전체 행사장, 1:booth, 2:program/행사, 3:스템프, 4:coupon
+	"booth_no": "BTO-DDP-01",  // Booth 번호
+  "booth_name": "시냅틱웨이브부스", // booth 이름
+  "program_no": "BTO-DDP-01-01", // nullable
+  "enc_code": "vIum7HbXUKNcy92BBP5t0dqoBr2/uKDZO02XstZjO3DETTPl5sd6wsnlCq25P+icFOSbo5ENiw+F030UwZk42a5bHiX4yQw8uTiFkm9zo3+m2vuHi8ByLpA03JgvbMFu+1gA3e49k3Lz6LhBKI1aoSu9W5ka06F3QbTsV+BaN1Y=" //hash_code 이전데이터까지 AES암호화
 }
+
+//coupon일 경우
+{
+	"version": "0.1", // QRcode 버전
+  "nft_type": 4,  //0: 전체 행사장,  1:booth, 2:program/행사, 3:스템프, 4:coupon  
+	"coupon_no": "WS_SM-DDP-01",  // 쿠폰 상품번호
+  "coupon_amount": 10000, // 가격
+  "enc_code": "vIum7HbXUKNcy92BBP5t0dqoBr2/uKDZO02XstZjO3DETTPl5sd6wsnlCq25P+icFOSbo5ENiw+F030UwZk42a5bHiX4yQw8uTiFkm9zo3+m2vuHi8ByLpA03JgvbMFu+1gA3e49k3Lz6LhBKI1aoSu9W5ka06F3QbTsV+BaN1Y=" //hash_code 이전데이터까지 AES암호화
+}
+end_code = ENC(data, 1122334455667788)
+
+{	
+	"com_version": "0.1", // 통신전문 버전
+  "QRcode_data": "QRcode data",//QRcode 데이터
+  "mobile_lat":37.51884700,
+  "mobile_lng":127.11691600
+}
+
  */
 
 exports.getPre_nft = async (req, res, next) => {
     console.log("getPre_nft");
-    var cid = req.body.cid;    
-    var content = req.body.content;
-    var GPS_lat = req.body.lat; //37.51884700; //37.51874700;
-    var GPS_lng = req.body.lng; //127.11691600; //127.11691600;
-    
-    var QRcode = new Object();
-    QRcode.version = req.body.version;
-    QRcode.gubun = req.body.gubun; //1 : booth, 2:program
-	QRcode.booth_no = req.body.booth_no;
-    QRcode.program_no = req.body.program_no;
-    QRcode.booth_name = req.body.booth_name;
-    QRcode.type = req.body.type;
-    QRcode.iss = req.body.iss;
-/*
-    QRcode.version = "001"; // QRcode 버전
-	QRcode.booth_no = "BTO-DDP-01";  // Booth 번호
-    QRcode.booth_name = "시냅틱웨이브부스"; // booth 이름
-    QRcode.type = "BOOTH";  // BOOTH : 부스타입, STAGE : 행사장
-    QRcode.iss = "SYNAPTICWAVE"; // booth 개설사업자이름   
-*/
-    //0. 사전체크(QRCdoe)    
+    var com_version = req.body.com_version;    
+    var QRcode_data = req.body.QRcode_data;
+    var GPS_lat = req.body.mobile_lat; //37.51884700; //37.51874700;
+    var GPS_lng = req.body.mobile_lng; //127.11691600; //127.11691600;
 
+    //0. 사전체크(QRCdoe)    
+    var QRcode = JSON.parse(QRcode_data);
+    console.log(QRcode.version);
+    console.log(QRcode.nft_type); // //0: 전체 행사장,  1:booth, 2:program/행사, 3:스템프, 4:coupon  
+	console.log(QRcode.booth_no);
+    console.log(QRcode.booth_name);
+    console.log(QRcode.program_no);
+    console.log(QRcode.enc_code);
+
+    var data_ret = new Object(); 
     //1. 코스의 GPS 정보를 조회함   
     var sql = "";
-    if(QRcode.gubun == 1){         // booth 일 경우 
-        sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay_test.yd_booth ";        
-        sql += " where booth_code= '" + QRcode.booth_no+"' ";     
-    }else{ // 2 : program 일 경우
-        sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  program_lat as lat, program_lng as lng from wafflestay_test.yd_program ";
-        sql += " where program_code = '" + QRcode.booth_no+"' ";     
-    }
-     
-     console.log(sql);
-
-     let [rows] = await global.mysqlPool.query(sql).catch((e) => {
-         console.error(e);
-     });
-     var data_ret = new Object();    
-
-     console.log(rows.length);
-     if(rows.length == 0){
-
-        data_ret.msg = "부스정보가 부정확합니다..";
-        data_ret.status = "FAIL";
-        return res.json(data_ret);
     
-     }else{
-        console.log(rows[0].lat);
-        console.log(rows[0].lng);
-        console.log(rows[0].open_datetime);
-        console.log(rows[0].close_datetime);
+    if((QRcode.nft_type == 1)||(QRcode.nft_type == 2)){
+        if(QRcode.nft_type == 1){         // booth 일 경우 
+            sql = "select open_datetime, close_datetime, lat as lat, lng as lng from wafflestay_test.yd_booth ";        
+            sql += " where booth_code= '" + QRcode.booth_no+"' ";     
+        }else if(QRcode.nft_type == 2){    // 2 : program 일 경우
+            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay_test.yd_program ";
+            sql += " where program_code = '" + QRcode.program_no+"' ";     
+        }
+        
+        console.log(sql);
 
-        const open_datetime = new Date(rows[0].open_datetime);
-        const close_datetime = new Date(rows[0].close_datetime);
-        const date_now = new Date();
+        let [rows] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+          
 
-        //행사시간비교
-        if(date_now.getTime() < open_datetime.getTime()){
-            //행사전
-            data_ret.msg = "행사전시간";
+        console.log(rows.length);
+        if(rows.length == 0){
+            data_ret.code = 1;
+            data_ret.msg = "부스정보가 부정확";
             data_ret.status = "FAIL";
             return res.json(data_ret);
+        
         }else{
-            if(date_now.getTime() > close_datetime.getTime()){
-                //행사종료후
-                data_ret.msg = "행사종료후시간";
+            console.log(rows[0].lat);
+            console.log(rows[0].lng);
+            console.log(rows[0].open_datetime);
+            console.log(rows[0].close_datetime);
+
+            const open_datetime = new Date(rows[0].open_datetime);
+            const close_datetime = new Date(rows[0].close_datetime);
+            const date_now = new Date();
+
+            //행사시간비교
+            if(date_now.getTime() < open_datetime.getTime()){
+                //행사전
+                data_ret.code = 2;
+                data_ret.msg = "행사전시간";
                 data_ret.status = "FAIL";
+                return res.json(data_ret);
+            }else{
+                if(date_now.getTime() > close_datetime.getTime()){
+                    //행사종료후
+                    data_ret.code = 3;
+                    data_ret.msg = "행사종료후시간";
+                    data_ret.status = "FAIL";
+                    return res.json(data_ret);
+                }
+            }
+
+            //코스 위치와 모바일 GPS 위치를 비교하여 20m이내여부확인
+            var booth_lat = rows[0].lat;
+            var booth_lng = rows[0].lng;
+
+            var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
+            console.log("distance_diff:"+distance_diff);//단위 km
+
+            if(distance_diff > 0.02){ //20m 내외에 있을 경우
+                data_ret.code = 3;            
+                data_ret.msg = "위치 오류";
+                data_ret.status = "FAIL";
+                return res.json(data_ret);
+            }else{
+                data_ret.code = 0;            
+                data_ret.msg = "NFT발급가능";
+                data_ret.status = "SUCCESS";
                 return res.json(data_ret);
             }
         }
-
-        //코스 위치와 모바일 GPS 위치를 비교하여 20m이내여부확인
-        var booth_lat = rows[0].booth_lat;
-        var booth_lng = rows[0].booth_lng;
-
-        var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
-        console.log("distance_diff:"+distance_diff);//단위 km
-
-        if(distance_diff > 0.02){ //20m 내외에 있을 경우
-            data_ret.status = "FAIL";
-            return res.json(data_ret);
-        }else{
-            data_ret.code = 0;
-            var data = new Object();
-            data.ctk = "ctk"
-            data_ret.status = "SUCCESS";
-            data_ret.data = data;
-            return res.json(data_ret);
-        }
+    }else{
+        data_ret.code = 0;            
+        data_ret.msg = "NFT발급가능";
+        data_ret.status = "SUCCESS";
+        return res.json(data_ret);
+ 
     }
 };
 
 /****
  * NFT 발급
  * 
- *"userID": "xnarai6@naver.com",
-  "title": "리뷰제목이들어갑니다.",
-  "body": "내용",
-  "content": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",		// jwt content
-  "nftcontract" : "swsedfgvsrdgfweargf3erwgfg56476ye56thrt5d6hj",  
-    "booth_no": "A-001",  // Booth 번호
-    "booth_name":"시냅틱웨이브부스", // booth 이름
-    "img1" : "1423rfewsgfergtser5yhr6thyrthjntydjn.jpg",
-    "img2" : "1423rfewsgfergtser5yhr6thyrthjntydjn.jpg",
-    "lat" : 31.25466, //모바일 GPS 정보
-    "lng" : 125.266165,//모바일 GPS 정보
-    "create_date" : 2022-08-25 14:58:12 //요청일시
-  
-    "nft_type" :  "booth" //'attend','booth'
+{
+	"com_version": "0.1", // 통신전문 버전
+  "nft_type": 2,  //0: 전체 행사장,  1:booth, 2:program/행사, 3:스템프, 4:coupon  
+  "userID": "xnarai6@naver.com",
+  "review_seq": 14,
+	"booth_no": "A01",  // Booth 번호
+  "booth_name":"시냅틱웨이브부스", // booth 이름
+  "img":[{
+			  "img_seq": 14,
+			  "img1_url" : "http://wafflestay.kr/review/1423rfewsgfergtser5yhr6thyrthjntydjn.jpg" //저장된 그림위치
+			},
+			{
+			  "img_seq": 15,
+			  "img1_url" : "http://wafflestay.kr/review/1423rfewsgfergtser5yhr6thyrthjntydjn.jpg" //저장된 그림위치
+			},
+			{
+			  "img_seq": 16,
+			  "img1_url" : "http://wafflestay.kr/review/1423rfewsgfergtser5yhr6thyrthjntydjn.jpg" //저장된 그림위치
+			}
+  ]
+   
+  "lat" : 31.25466, //모바일 GPS 정보
+  "lng" : 125.266165,//모바일 GPS 정보
+  "create_date" : "2022-08-25 14:58:12" //요청일시
+}
  */
 
 exports.getIssure_nft = async (req, res, next) => {
+    console.log("getIssure_nft");
+    //var userID = req.query.userID;   
+    
+    var userID = req.body.userID;   
+    console.log("userID:"+userID); 
+
+
+    var nft_type =  req.body.nft_type;   
+    var booth_no =  req.body.booth_no;
+    var booth_name = req.body.booth_name;  
+    var program_no = req.body.program_no; 
+    console.log(req.body.img);
+    //console.log(JSON.parse(req.body.img));
+    var img_json = (req.body.img);
+
+    var GPS_lat =  req.body.lat;
+    var GPS_lng =  req.body.lng;
+    var create_date =  req.body.create_date;
+   
+    //1. 회원정보조회
+    var aes_key = process.env["PK_ENC_AES_KEY"];
+
+    //var sql = "SELECT * from wafflestay_test.yd_user_pk as a ";
+    var sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.yd_user_pk as a ";
+    sql +=" LEFT JOIN wafflestay_test.tbl_member as b   ";
+    sql +=" ON a.member_seq = b.member_seq AND ";
+    sql +=" a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"')";
+
+    console.log(sql);
+    let [rowsm]  = await global.mysqlPool.query(sql).catch((e) => {
+        console.error(e);
+    });
+    var member_seq = 0;
+    var addr =""
+    var user_pk =""
+    if(rowsm.length ==1 ){
+        member_seq = rowsm[0].member_seq; 
+        addr = rowsm[0].addr;
+        pk = rowsm[0].pkk;
+        console.log("pkk:" + pk);
+    }else{
+    
+        //1.1 주소생성    
+        let private_key  = await createETHAddress().catch((e) => {
+            console.error(e);
+        });
+        console.log(private_key.address);
+        //console.log(private_key.privateKey);
+        
+        var sql = "INSERT INTO wafflestay_test.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+        //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
+        sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"+member_seq;    
+        
+        sql += ", SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
+        console.log(sql);
+        let [rows11]  = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+        addr = private_key.address;
+        user_pk = private_key.privateKey;  
+        console.log("pkk:" + user_pk);  
+    }
+
+
+    //GPS 위치 확인
+    var sql = "";
+
+    if((nft_type == 1)||(nft_type == 2)){
+        if((nft_type == 1)){         // 전체행사장이나 booth 일 경우 
+            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay_test.yd_booth ";        
+            sql += " where booth_code= '" + booth_no+"' ";     
+        }else if(nft_type == 2){    // 2 : program 일 경우
+            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay_test.yd_program ";
+            sql += " where program_code = '" + program_no+"' ";     
+        }
+        
+        console.log(sql);
+
+        let [rows] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+        var data_ret = new Object();    
+
+        console.log(rows.length);
+        if(rows.length == 0){
+            data_ret.code = 1;
+            data_ret.msg = "부스정보가 부정확";
+            data_ret.status = "FAIL";
+            return res.json(data_ret);
+        
+        }else{
+            console.log(rows[0].lat);
+            console.log(rows[0].lng);
+            console.log(rows[0].open_datetime);
+            console.log(rows[0].close_datetime);
+
+            const open_datetime = new Date(rows[0].open_datetime);
+            const close_datetime = new Date(rows[0].close_datetime);
+            const date_now = new Date();
+
+            //행사시간비교
+            if(date_now.getTime() < open_datetime.getTime()){
+                //행사전
+                data_ret.code = 2;
+                data_ret.msg = "행사전시간";
+                data_ret.status = "FAIL";
+                return res.json(data_ret);
+            }else{
+                if(date_now.getTime() > close_datetime.getTime()){
+                    //행사종료후
+                    data_ret.code = 3;
+                    data_ret.msg = "행사종료후시간";
+                    data_ret.status = "FAIL";
+                    return res.json(data_ret);
+                }
+            }
+            if(nft_type > 0){ // 0(전체 행사장) 이 아닌 경우
+                //코스 위치와 모바일 GPS 위치를 비교하여 20m이내여부확인
+                var booth_lat = rows[0].lat;
+                var booth_lng = rows[0].lng;
+
+                var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
+                console.log("distance_diff:"+distance_diff);//단위 km
+
+                if(distance_diff > 0.02){ //20m 내외에 있을 경우
+                    data_ret.code = 3;            
+                    data_ret.msg = "위치 오류";
+                    data_ret.status = "FAIL";
+                    return res.json(data_ret);
+                }
+            }
+
+        }
+        
+    } else{
+        booth_no = 0;
+        booth_name = "전체행사장";
+    }
+    
+        //4. NFT 저장
+        var sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
+        sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+        console.log(sql);
+        let [rowsn] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+        var nft_insertId = rowsn.insertId;  
+
+        //5. metadata.js 생성   
+        var nft_info = new Object();
+        nft_info.nft_type = nft_type;    
+        nft_info.nft_version = "0.1";
+        nft_info.member_seq = member_seq;    
+        nft_info.userID = userID;    
+        nft_info.create_date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+
+        var property = new Object();
+        property.booth_no = booth_no;   
+        property.booth_name = booth_name;
+        //property.img = img_json;
+        //property.img = img_json.toString().replace(' ', '').replace('\n', '').replace('\t', '');
+        //property.img = property.img.toString().replace('/', '').replace("\"", '');
+        
+        var aaa = JSON.parse(img_json);
+        //console.log("JSON.stringify(aaa):"+JSON.stringify(aaa));    
+        property.img = JSON.stringify(aaa);
+
+        nft_info.property = property; 
+        nft_info.lat = GPS_lat;
+        nft_info.lng = GPS_lng;
+
+        var  metadata_url = await createMetadataFile(nft_info, nft_insertId).catch((e) => {
+            console.error(e);
+        });
+        console.log("metadata_url:"+metadata_url);
+        if(metadata_url =="undefined"){
+            var ret_data = new Object();
+            ret_data.code = 0;
+            ret_data.msg ="fail";
+            ret_data.status = "fail";        
+
+            return res.json(ret_data);    
+
+        }
+
+
+        //2. NFT 발행    
+        
+        var url = process.env["NFT_METATDATA_REPOSITORY"] + "/NFT_metadata/14_metadata.js";
+        /*
+        let ret = await mintNFT(metadata_url, addr,user_pk).catch((e) => {
+            //console.error(e);
+        });
+        
+        let ret = await mintPolygonNFT(metadata_url, addr,user_pk).catch((e) => {
+            //console.error(e);
+        });
+        var hashid = ret.data;
+*/
+        
+        var hashid = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+        //3. NFT DB 업데이트
+        //var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+JSON.stringify(metdata_temp)+"', nft_hashid = '"+hashid+"'";
+        var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";
+        
+        sql += "where nft_seq="+nft_insertId;
+        console.log(sql);
+        let [rows1] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+    
+
+    //4. 응답
+    var ret_data = new Object();
+    ret_data.code = 0;
+    ret_data.msg ="정상발급";
+    ret_data.status = "SUCCESS";
+    var data = new Object();
+    data.nftid = nft_insertId;
+    data.nfthashid = hashid;
+    ret_data.data = data;
+
+    return res.json(ret_data);    
+
+};
+
+/****
+ * 리뷰, 그림 일괄등록방식으로 NFT 발급
+ */
+/*
+exports.getFullIssure_nft = async (req, res, next) => {
     console.log("getIssure_nft");
     //var userID = req.query.userID;   
     
@@ -174,21 +442,18 @@ exports.getIssure_nft = async (req, res, next) => {
 
     var nft_type =  req.body.nft_type;   
     var booth_no =  req.body.booth_no;
-    var booth_name =  req.body.booth_name;
-    var img1 =  req.body.img1;
-    var img2 =  req.body.img2;
-    var lat =  req.body.lat;
-    var lng =  req.body.lng;
+    var booth_name =  req.body.booth_name;    
+    var img_json = req.body.img;
+    
+    var GPS_lat =  req.body.lat;
+    var GPS_lng =  req.body.lng;
     var create_date =  req.body.create_date;
 
-    var nft_type = 1; //1: "booth", 2:stamp, 3:coupon;
+    //var nft_type = 1; //1: "booth", 2:stamp, 3:coupon;
     console.log("userID:"+userID);
     console.log("title:"+title);
     console.log("body:"+body);
-    console.log("content:"+content);
-    console.log("img1:"+img1);
-    console.log("img2:"+img2);
-    
+    console.log("content:"+content);    
    
     //1. 회원정보조회
     var aes_key = process.env["PK_ENC_AES_KEY"];
@@ -238,7 +503,7 @@ exports.getIssure_nft = async (req, res, next) => {
     var sql = "INSERT INTO wafflestay_test.yd_review (booth_seq, member_seq, review_content, review_img, insert_dttm, insert_id,update_dttm, update_id) values"
     sql += "((select booth_seq from wafflestay_test.yd_booth where booth_code='"+ booth_no + "'),";
     sql += "(select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),";
-    sql += "'"+body+"','" + img1+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
+    sql += "'"+body+"','" + img+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
     console.log(sql);
     let [rows]  = await global.mysqlPool.query(sql).catch((e) => {
         console.error(e);
@@ -251,30 +516,26 @@ exports.getIssure_nft = async (req, res, next) => {
     //3. 그림 경로저장
     // - 그림 1 이 없는 경우는 저장하지 않음, 그림2으 체크하지 않음 
     var pic_insertId = 0;   
-    var multi_pic = 0;
-    if((img1 =='null')||(img1 =='')){
-        console.log("img1 null");
-    }else{
-        var subquery = "";
-        if((img2 =='null')||(img2 =='')){
-            console.log("img1 null");
-        }else{
-            subquery = ",((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img2+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
-        }
-        var sql = "INSERT INTO wafflestay_test.yd_image (member_seq, review_seq, image_url, insert_dttm, insert_id,update_dttm, update_id) values"
-        sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img1+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
-        sql += subquery;
-
-        console.log(sql);
-
-        let [rows] = await global.mysqlPool.query(sql).catch((e) => {
-            console.error(e);
-        });
-        console.log("rows:"+JSON.stringify(rows));
-        console.log("rows.insertId:"+rows.insertId);
-        pic_insertId = Number(rows.insertId); // img1_index, img2_index= img1_index+1  
-        multi_pic = pic_insertId + 1;       
+    
+    for(var i=0;i<img_json.length();i++){        
+        var img_url = img_json[0].img_url;
+        if(i=0){
+            subquery += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img_url+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
+        }        
+        subquery += ",((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img_url+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
     }
+    var sql = "INSERT INTO wafflestay_test.yd_image (member_seq, review_seq, image_url, insert_dttm, insert_id,update_dttm, update_id) values"
+    sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img1+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
+    sql += subquery;
+
+    console.log(sql);
+
+    let [rows11] = await global.mysqlPool.query(sql).catch((e) => {
+        console.error(e);
+    });
+    console.log("rows:"+JSON.stringify(rows11));
+    console.log("rows.insertId:"+rows11.insertId);
+    pic_insertId = Number(rows11.insertId); // img1_index, img2_index= img1_index+1  
    
     //4. NFT 저장
     var sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
@@ -288,36 +549,18 @@ exports.getIssure_nft = async (req, res, next) => {
     //5. metadata.js 생성   
     var nft_info = new Object();
     nft_info.userID = userID;
+    nft_info.nft_type=nft_type;
     nft_info.member_seq = member_seq;
     nft_info.booth_no = booth_no;
     nft_info.img1 = img1;
     nft_info.img2 = img2;
-    nft_info.lat = lat;
-    nft_info.lng = lng;
+    nft_info.lat = GPS_lat;
+    nft_info.lng = GPS_lng;
 
     var  metadata_url = await createMetadataFile(nft_info, nft_type,nft_insertId).catch((e) => {
         console.error(e);
     });
     console.log("metadata_url:"+metadata_url);
-/*
-    var metadata_url = process.env["NFT_METADATA_URI"] +nft_insertId +"_metadata.js";
-    //var metadata_url = "public/NFT_metadata/" +nft_insertId +"_metadata.js";
-    var writeStream = fs.createWriteStream(metadata_url);
-    var metdata_temp = new Object();
-    metdata_temp.nft_type = 1;
-    metdata_temp.nft_version = "0.1";
-    metdata_temp.userID = userID;
-    metdata_temp.member_seq = member_seq;
-    var property = new Object();
-    property.booth_no = booth_no;    
-    property.img1 = img1;
-    property.img2 = img2;
-    property.lat = lat;
-    property.lng = lng;        
-    metdata_temp.property = property;
-    writeStream.write(JSON.stringify(metdata_temp));    
-    writeStream.end();
-*/
 
     //2. NFT 발행    
     var url = process.env["NFT_METATDATA_REPOSITORY"] + "/NFT_metadata/14_metadata.js";
@@ -366,6 +609,7 @@ exports.getIssure_nft = async (req, res, next) => {
     return res.json(ret_data);    
 
 };
+*/
 
 /***
  * 회원보유 NFT 목록 조회
@@ -381,7 +625,7 @@ exports.getList_nft = async (req, res, next) => {
     console.log("userID:"+userID);
 
     var sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
-    sql +=" b.booth_title as booth_name,b.booth_lat as lat, b.booth_lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+    sql +=" b.booth_title as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
     sql +=" from wafflestay_test.yd_nft as a ";
     sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
     sql +=" ON a.booth_no = b.booth_code ";
@@ -397,7 +641,17 @@ exports.getList_nft = async (req, res, next) => {
     ret_data.nftcnt = rowsm.length;
     ret_data.nftdata =  rowsm;
 
-    //console.log(rowsm);
+    for(var i=0;i<rowsm.length;i++){
+        
+        var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+        sql += " where nft_seq = " + rowsm[i].nftid;
+        
+        console.log(sql);
+        let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });    
+        rowsm[i].img = rowsr;
+    }
 
     if(rowsm.length > 0 ){
         
@@ -422,7 +676,7 @@ exports.getDetail_nft = async (req, res, next) => {
     console.log("ntfId:"+ntfId);
 
     var sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
-    sql +=" b.booth_title as booth_name,b.booth_lat as lat, b.booth_lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+    sql +=" b.booth_title as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
     sql +=" from wafflestay_test.yd_nft as a ";
     sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
     sql +=" ON a.booth_no = b.booth_code ";
@@ -435,7 +689,17 @@ exports.getDetail_nft = async (req, res, next) => {
     var ret_data = new Object();        
     ret_data =  rowsm[0];
 
-    //console.log(rowsm);
+    for(var i=0;i<rowsm.length;i++){
+        
+        var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+        sql += " where nft_seq = " + rowsm[i].nftid;
+        
+        console.log(sql);
+        let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });    
+        rowsm[i].img = rowsr;
+    }
 
     if(rowsm.length > 0 ){
         
@@ -540,10 +804,14 @@ async function mintNFT(uri, addressTo) {
                         })
                         .on('error', function (error) {
                             response.message = "Something went wrong"
-                            response.status = 0
-                            response.data = error
+                            //response.status = 0
+                            //response.data = error
+                            response.status = 1
+                            response.data = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
                             cb(response)
-                            reject(response);
+                            resolve(response);
+                            //reject(response);
                         })
                     
                         
@@ -564,14 +832,68 @@ async function mintNFT(uri, addressTo) {
             cb(response)
             reject(response);
         });
-
        
 });
 /*****
  * NFT metadat file 생성
  */
 }
-async function createMetadataFile(nft_info, nft_type,nft_insertId) {
+
+/***
+ * Polygon NFT 발급
+ */
+ async function mintPolygonNFT(ipfs, addressTo) {
+    try {
+        //const ipfs = "http://wafflestay.kr";
+
+        var provider = 'https://polygon-mumbai.infura.io/v3/4fc0783f88504c6692cea45407110da7';
+        //var addressTo = '0x4182b1C4E550A6AAC6030Ccdb599C0A6290D9F00';
+        var ownerPrivateKey = '08d3c52bcc7bfe3a57464c65f77ec75594d4229e15d60bebb9e43ec42b530d85';
+        var Contract_ADDRESS = "0xfbb4e1bc1f67545bc1dc80eb7e5bf5aad0f104a1";
+                
+        const web3Context = new Web3(new Web3.providers.HttpProvider(provider));
+        const contractERC721 = new web3Context.eth.Contract(TSNFT, Contract_ADDRESS);
+        let account = web3Context.eth.accounts.privateKeyToAccount(ownerPrivateKey);
+        let wallet = web3Context.eth.accounts.wallet.add(account);
+        
+        const gasPrice = await web3Context.eth.getGasPrice();
+        const nonce = await web3Context.eth.getTransactionCount(
+            wallet.address,
+            "pending"
+        );
+        const gasLimit =
+            await contractERC721.methods.safeMint(addressTo, ipfs).estimateGas(
+                {
+                    from: wallet.address
+                }
+            );
+        const res = await contractERC721.methods.safeMint(addressTo, ipfs).send({
+            from: wallet.address,
+            gas: gasLimit,
+            gasPrice: gasPrice,
+            nonce: nonce
+        });
+        console.log("Mint NFT Tx Hash : " +  res.transactionHash);
+        await web3Context.eth.accounts.wallet.clear();
+        var response = new Object();
+        response.status = 1
+        response.data = res.transactionHash;
+        return (response);
+    } catch (e) {
+        //console.log(e);
+        //throw e;
+        var response = new Object();
+        response.status = 0
+        response.data = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        return (response);
+    }
+       
+}
+/*****
+ * NFT metadat file 생성
+ */
+
+async function createMetadataFile(nft_info, nft_insertId) {
 
     var metadata_url = process.env["NFT_METADATA_URI"] +nft_insertId +"_metadata.js";
     //var metadata_url = "public/NFT_metadata/" +nft_insertId +"_metadata.js";
@@ -579,39 +901,35 @@ async function createMetadataFile(nft_info, nft_type,nft_insertId) {
     var metdata_temp = new Object();
     var property = new Object();
        
-    var create_date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');     // delete the dot and everything after
+    var create_date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');     
 
-    if(nft_type == 1){    // 행사 NFT
-        metdata_temp.nft_type = nft_type;
-        metdata_temp.nft_version = "0.1";
+    if(nft_info.nft_type == 1){    // 행사 NFT
+        metdata_temp.nft_type = nft_info.nft_type;
+        metdata_temp.nft_version = nft_info.nft_version;
         metdata_temp.userID = nft_info.userID;
         metdata_temp.member_seq = nft_info.member_seq;
-        metdata_temp.create_date = create_date;
-        
-        property.booth_no = nft_info.booth_no;    
-        property.img1 = nft_info.img1;
-        property.img2 = nft_info.img2;
-        property.lat = nft_info.lat;
-        property.lng = nft_info.lng;        
+        metdata_temp.create_date = create_date;        
+        property.booth_no = nft_info.property.booth_no;    
+        property.img = nft_info.property.img;
+        property.lat = nft_info.property.lat;
+        property.lng = nft_info.property.lng;        
         metdata_temp.property = property;
-    }else if(nft_type == 2){  // 스탭프 NFT
-        metdata_temp.nft_type = nft_type;
-        metdata_temp.nft_version = "0.1";
+    }else if(nft_info.nft_type == 2){  // 스탭프 NFT
+        metdata_temp.nft_type = nft_info.nft_type;
+        metdata_temp.nft_version = nft_info.nft_version;
         metdata_temp.userID = nft_info.userID;
         metdata_temp.member_seq = nft_info.member_seq;
-        metdata_temp.create_date = create_date;
-        
-        property.course_no ="BTO-DDP-01",    
-        property.qr_point="BTO-DDP-01-01",        
-        property.img1 = nft_info.img1;
-        property.img2 = nft_info.img2;
-        property.lat = nft_info.lat;
-        property.lng = nft_info.lng;          
+        metdata_temp.create_date = create_date;        
+        property.course_no =nft_info.course_no,    
+        property.qr_point=nft_info.qr_point,        
+        property.img = nft_info.property.img;
+        property.lat = nft_info.property.lat;
+        property.lng = nft_info.property.lng;          
         metdata_temp.property = property;
 
-    }else if(nft_type == 3){  // 쿠폰 NFT
-        metdata_temp.nft_type = nft_type;
-        metdata_temp.nft_version = "0.1";
+    }else if(nft_info.nft_type == 3){  // 쿠폰 NFT
+        metdata_temp.nft_type = nft_info.nft_type;
+        metdata_temp.nft_version = nft_info.nft_version;
         metdata_temp.creator_userID = nft_info.userID;
         metdata_temp.creator_member_seq = nft_info.member_seq;
         metdata_temp.coupon_no = nft_info.coupon_no;
