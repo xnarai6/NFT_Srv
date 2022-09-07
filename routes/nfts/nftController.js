@@ -57,6 +57,15 @@ var options = {
   "coupon_amount": 10000, // 가격
   "enc_code": "vIum7HbXUKNcy92BBP5t0dqoBr2/uKDZO02XstZjO3DETTPl5sd6wsnlCq25P+icFOSbo5ENiw+F030UwZk42a5bHiX4yQw8uTiFkm9zo3+m2vuHi8ByLpA03JgvbMFu+1gA3e49k3Lz6LhBKI1aoSu9W5ka06F3QbTsV+BaN1Y=" //hash_code 이전데이터까지 AES암호화
 }
+
+//스템프일 경우
+{
+	"version": "0.1", // QRcode 버전
+  "nft_type": 3,  //0: 전체 행사장,  1:booth, 2:program/행사, 3:스템프, 4:coupon  
+	"course_point_no": "BTO_1_1",  // 포인트  
+  "enc_code": "vIum7HbXUKNcy92BBP5t0dqoBr2/uKDZO02XstZjO3DETTPl5sd6wsnlCq25P+icFOSbo5ENiw+F030UwZk42a5bHiX4yQw8uTiFkm9zo3+m2vuHi8ByLpA03JgvbMFu+1gA3e49k3Lz6LhBKI1aoSu9W5ka06F3QbTsV+BaN1Y=" //hash_code 이전데이터까지 AES암호화
+}
+
 end_code = ENC(data, 1122334455667788)
 
 {	
@@ -88,13 +97,17 @@ exports.getPre_nft = async (req, res, next) => {
     //1. 코스의 GPS 정보를 조회함   
     var sql = "";
     
-    if((QRcode.nft_type == 1)||(QRcode.nft_type == 2)){
+    if((QRcode.nft_type == 1)||(QRcode.nft_type == 2)||(QRcode.nft_type == 3)){
         if(QRcode.nft_type == 1){         // booth 일 경우 
-            sql = "select open_datetime, close_datetime, lat as lat, lng as lng from wafflestay_test.yd_booth ";        
+            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay_test.yd_booth ";        
             sql += " where booth_code= '" + QRcode.booth_no+"' ";     
         }else if(QRcode.nft_type == 2){    // 2 : program 일 경우
             sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay_test.yd_program ";
             sql += " where program_code = '" + QRcode.program_no+"' ";     
+        }else if(QRcode.nft_type == 3){    // 3 : stamp 일 경우            
+            console.log(QRcode.course_point_no);
+            sql = "select  lat as lat, lng as lng from wafflestay_test.ts_course_detail ";
+            sql += " where course_point_no = '" + QRcode.course_point_no+"' ";     
         }
         
         console.log(sql);
@@ -112,40 +125,45 @@ exports.getPre_nft = async (req, res, next) => {
             return res.json(data_ret);
         
         }else{
-            console.log(rows[0].lat);
-            console.log(rows[0].lng);
-            console.log(rows[0].open_datetime);
-            console.log(rows[0].close_datetime);
+            if((QRcode.nft_type == 1)||(QRcode.nft_type == 2)){ 
+                console.log(rows[0].lat);
+                console.log(rows[0].lng);
+                console.log(rows[0].open_datetime);
+                console.log(rows[0].close_datetime);
 
-            const open_datetime = new Date(rows[0].open_datetime);
-            const close_datetime = new Date(rows[0].close_datetime);
-            const date_now = new Date();
+                const open_datetime = new Date(rows[0].open_datetime);
+                const close_datetime = new Date(rows[0].close_datetime);
+                const date_now = new Date();
 
-            //행사시간비교
-            if(date_now.getTime() < open_datetime.getTime()){
-                //행사전
-                data_ret.code = 2;
-                data_ret.msg = "행사전시간";
-                data_ret.status = "FAIL";
-                return res.json(data_ret);
-            }else{
-                if(date_now.getTime() > close_datetime.getTime()){
-                    //행사종료후
-                    data_ret.code = 3;
-                    data_ret.msg = "행사종료후시간";
+                //행사시간비교
+                if(date_now.getTime() < open_datetime.getTime()){
+                    //행사전
+                    data_ret.code = 2;
+                    data_ret.msg = "행사전시간";
                     data_ret.status = "FAIL";
                     return res.json(data_ret);
+                }else{
+                    if(date_now.getTime() > close_datetime.getTime()){
+                        //행사종료후
+                        data_ret.code = 3;
+                        data_ret.msg = "행사종료후시간";
+                        data_ret.status = "FAIL";
+                        return res.json(data_ret);
+                    }
                 }
             }
 
             //코스 위치와 모바일 GPS 위치를 비교하여 20m이내여부확인
             var booth_lat = rows[0].lat;
             var booth_lng = rows[0].lng;
+            console.log("booth_lat:"+booth_lat);
+            console.log("booth_lng:"+booth_lng);
+
 
             var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
             console.log("distance_diff:"+distance_diff);//단위 km
 
-            if(distance_diff > 0.02){ //20m 내외에 있을 경우
+            if(distance_diff > 0.05){ //50m 내외에 있을 경우
                 data_ret.code = 3;            
                 data_ret.msg = "위치 오류";
                 data_ret.status = "FAIL";
@@ -208,6 +226,7 @@ exports.getIssure_nft = async (req, res, next) => {
     var booth_no =  req.body.booth_no;
     var booth_name = req.body.booth_name;  
     var program_no = req.body.program_no; 
+    var course_point_no = req.body.course_point_no;
     console.log(req.body.img);
     //console.log(JSON.parse(req.body.img));
     var img_json = (req.body.img);
@@ -264,13 +283,19 @@ exports.getIssure_nft = async (req, res, next) => {
     //GPS 위치 확인
     var sql = "";
 
-    if((nft_type == 1)||(nft_type == 2)){
+    if((nft_type == 1)||(nft_type == 2)||(nft_type == 3)){
         if((nft_type == 1)){         // 전체행사장이나 booth 일 경우 
             sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay_test.yd_booth ";        
             sql += " where booth_code= '" + booth_no+"' ";     
         }else if(nft_type == 2){    // 2 : program 일 경우
             sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay_test.yd_program ";
             sql += " where program_code = '" + program_no+"' ";     
+        }else if(nft_type == 3){    // 3 : stamp 일 경우            
+            console.log(course_point_no);
+            booth_no = course_point_no;
+
+            sql = "select  lat as lat, lng as lng from wafflestay_test.ts_course_detail ";
+            sql += " where course_point_no = '" + course_point_no+"' ";     
         }
         
         console.log(sql);
@@ -293,35 +318,38 @@ exports.getIssure_nft = async (req, res, next) => {
             console.log(rows[0].open_datetime);
             console.log(rows[0].close_datetime);
 
-            const open_datetime = new Date(rows[0].open_datetime);
-            const close_datetime = new Date(rows[0].close_datetime);
-            const date_now = new Date();
+            if((nft_type == 1)||(nft_type == 2)){
+                const open_datetime = new Date(rows[0].open_datetime);
+                const close_datetime = new Date(rows[0].close_datetime);
+                const date_now = new Date();
 
-            //행사시간비교
-            if(date_now.getTime() < open_datetime.getTime()){
-                //행사전
-                data_ret.code = 2;
-                data_ret.msg = "행사전시간";
-                data_ret.status = "FAIL";
-                return res.json(data_ret);
-            }else{
-                if(date_now.getTime() > close_datetime.getTime()){
-                    //행사종료후
-                    data_ret.code = 3;
-                    data_ret.msg = "행사종료후시간";
+                //행사시간비교
+                if(date_now.getTime() < open_datetime.getTime()){
+                    //행사전
+                    data_ret.code = 2;
+                    data_ret.msg = "행사전시간";
                     data_ret.status = "FAIL";
                     return res.json(data_ret);
+                }else{
+                    if(date_now.getTime() > close_datetime.getTime()){
+                        //행사종료후
+                        data_ret.code = 3;
+                        data_ret.msg = "행사종료후시간";
+                        data_ret.status = "FAIL";
+                        return res.json(data_ret);
+                    }
                 }
             }
+
             if(nft_type > 0){ // 0(전체 행사장) 이 아닌 경우
-                //코스 위치와 모바일 GPS 위치를 비교하여 20m이내여부확인
+                //코스 위치와 모바일 GPS 위치를 비교하여 50m이내여부확인
                 var booth_lat = rows[0].lat;
                 var booth_lng = rows[0].lng;
 
                 var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
                 console.log("distance_diff:"+distance_diff);//단위 km
 
-                if(distance_diff > 0.02){ //20m 내외에 있을 경우
+                if(distance_diff > 0.05){ //50m 내외에 있을 경우
                     data_ret.code = 3;            
                     data_ret.msg = "위치 오류";
                     data_ret.status = "FAIL";
@@ -331,14 +359,22 @@ exports.getIssure_nft = async (req, res, next) => {
 
         }
         
-    } else{
+    } else if(nft_type == 0){
         booth_no = 0;
         booth_name = "전체행사장";
+
     }
     
         //4. NFT 저장
-        var sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
-        sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+        var sql = "";
+        if(nft_type == 3){
+            sql = "INSERT INTO wafflestay_test.ts_nft (member_seq, nft_type,course_point_no, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+
+        }else{
+            sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+        }
         console.log(sql);
         let [rowsn] = await global.mysqlPool.query(sql).catch((e) => {
             console.error(e);
@@ -401,9 +437,14 @@ exports.getIssure_nft = async (req, res, next) => {
 
         //3. NFT DB 업데이트
         //var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+JSON.stringify(metdata_temp)+"', nft_hashid = '"+hashid+"'";
-        var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";
-        
-        sql += "where nft_seq="+nft_insertId;
+        var sql = "";
+        if(nft_type == 3){
+            sql = "UPDATE wafflestay_test.ts_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
+            sql += "where nft_seq="+nft_insertId;
+        }else{
+            sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
+            sql += "where nft_seq="+nft_insertId;
+        }
         console.log(sql);
         let [rows1] = await global.mysqlPool.query(sql).catch((e) => {
             console.error(e);
@@ -616,21 +657,36 @@ exports.getFullIssure_nft = async (req, res, next) => {
  * 
  * param
  * - "userID": "xnarai6@naver.com",
- */
+ * -  "nft_type": 2,  //0: 전체 행사장,  1:booth, 2:program/행사, 3:스템프, 4:coupon  
+ * */
 
 exports.getList_nft = async (req, res, next) => {
     console.log("getList_nft");
 
     var userID  = req.query.userId ;    
-    console.log("userID:"+userID);
+    var nft_type  = req.query.nft_type ;    
+    var sql = "";
 
-    var sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
-    sql +=" b.booth_title as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-    sql +=" from wafflestay_test.yd_nft as a ";
-    sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
-    sql +=" ON a.booth_no = b.booth_code ";
-    sql +=" AND a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"') ";
-    sql +=" WHERE a.nft_hashid <> '0'";
+    if(nft_type == 3){ //stamp
+        
+        sql = "SELECT a.nft_seq as nftid, a.nft_type,a.course_point_no as booth_no,  ";
+        sql +=" b.course_detail_name as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+        sql +=" from wafflestay_test.ts_nft as a ";
+        sql +=" LEFT JOIN wafflestay_test.ts_course_detail as b   ";
+        sql +=" ON a.course_point_no = b.course_point_no ";
+        sql +=" AND a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"') ";
+        sql +=" WHERE a.nft_hashid <> '0'";
+        
+    }else{
+        
+        sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
+        sql +=" b.booth_title as booth_name,b.booth_lat as lat, b.booth_lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+        sql +=" from wafflestay_test.yd_nft as a ";
+        sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
+        sql +=" ON a.booth_no = b.booth_code ";
+        sql +=" AND a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"') ";
+        sql +=" WHERE a.nft_hashid <> '0'";
+    }
 
     console.log(sql);
     let [rowsm]  = await global.mysqlPool.query(sql).catch((e) => {
@@ -671,40 +727,51 @@ exports.getList_nft = async (req, res, next) => {
 exports.getDetail_nft = async (req, res, next) => {
     console.log("getDetail_nft");
     let { ntfId } = req.params;  
-    console.log(ntfId);
+    var nft_type  = req.query.nft_type ;    
 
     console.log("ntfId:"+ntfId);
+    console.log("nft_type:"+nft_type);
+    var sql = "";
+    var ret_data = new Object();     
+    if(nft_type == 3){
+        sql = "SELECT a.nft_seq as nftid, a.nft_type,a.course_point_no as booth_no,  ";
+        sql +=" b.course_detail_name as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+        sql +=" from wafflestay_test.ts_nft as a ";
+        sql +=" LEFT JOIN wafflestay_test.ts_course_detail as b   ";
+        sql +=" ON a.course_point_no = b.course_point_no ";
+        sql +=" where a.nft_seq = "+ntfId+" ";    
 
-    var sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
-    sql +=" b.booth_title as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-    sql +=" from wafflestay_test.yd_nft as a ";
-    sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
-    sql +=" ON a.booth_no = b.booth_code ";
-    sql +=" where a.nft_seq = "+ntfId+" ";    
+    }else{
+        sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
+        sql +=" b.booth_title as booth_name,b.booth_lat as lat, b.booth_lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+        sql +=" from wafflestay_test.yd_nft as a ";
+        sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
+        sql +=" ON a.booth_no = b.booth_code ";
+        sql +=" where a.nft_seq = "+ntfId+" ";    
+    }
 
     console.log(sql);
     let [rowsm]  = await global.mysqlPool.query(sql).catch((e) => {
         console.error(e);
     });
-    var ret_data = new Object();        
-    ret_data =  rowsm[0];
+    if(rowsm.length > 0){
 
-    for(var i=0;i<rowsm.length;i++){
-        
-        var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
-        sql += " where nft_seq = " + rowsm[i].nftid;
-        
-        console.log(sql);
-        let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
-            console.error(e);
-        });    
-        rowsm[i].img = rowsr;
-    }
+        ret_data =  rowsm[0];
 
-    if(rowsm.length > 0 ){
-        
+        for(var i=0;i<rowsm.length;i++){
+            
+            var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+            sql += " where nft_seq = " + rowsm[i].nftid;
+            
+            console.log(sql);
+            let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+                console.error(e);
+            });    
+            rowsm[i].img = rowsr;
+        }        
         console.log(rowsm[0].member_seq);
         ret_data.status = "SUCCESS";
+
     }else{
         ret_data.status = "FAIL";
     }
