@@ -45,37 +45,5 @@ router.route('/detail_nft/:ntfId').get(
 
 
 
-/***
- * NFT 발급 사전검증
-
- router.route('/BTOpre_nft').post(
-    controller.getBTOPre_nft
-);
-/****
- * NFT 발급
-
-router.route('/BTOissue_nft').post(
-    controller.getBTOIssure_nft
-);
-/****
- * NFT 발급
-
-
- router.route('/fullissue_nft').post(
-    controller.getFullIssure_nft
-);
-
-/***
- * 회원보유 NFT 목록 조회
-
-router.route('/BTOlist_nft').get(
-    controller.getBTOList_nft
-);
-
- * 단건 NFT 조회
- */
-router.route('/BTOdetail_nft/:ntfId').get(
-    controller.getBTODetail_nft
-);
 
 module.exports = router;
