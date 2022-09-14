@@ -239,10 +239,18 @@ exports.getIssure_nft = async (req, res, next) => {
     var aes_key = process.env["PK_ENC_AES_KEY"];
 
     //var sql = "SELECT * from wafflestay_test.yd_user_pk as a ";
-    var sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.yd_user_pk as a ";
-    sql +=" LEFT JOIN wafflestay_test.tbl_member as b   ";
-    sql +=" ON a.member_seq = b.member_seq AND ";
-    sql +=" a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"')";
+    var sql = "";
+    if(nft_type ==3 ){
+        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.ts_user_pk as a ";
+        sql +=" LEFT JOIN wafflestay_test.ts_user as b   ";
+        sql +=" ON a.member_seq = b.id AND ";
+        sql +=" a.member_seq = (select id from wafflestay_test.ts_user where email='"+userID+"')";
+    }else{
+        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.yd_user_pk as a ";
+        sql +=" LEFT JOIN wafflestay_test.tbl_member as b   ";
+        sql +=" ON a.member_seq = b.member_seq AND ";
+        sql +=" a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"')";
+    }
 
     console.log(sql);
     let [rowsm]  = await global.mysqlPool.query(sql).catch((e) => {
@@ -264,8 +272,12 @@ exports.getIssure_nft = async (req, res, next) => {
         });
         console.log(private_key.address);
         //console.log(private_key.privateKey);
-        
-        var sql = "INSERT INTO wafflestay_test.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+        var sql = "";
+        if(nft_type ==3 ){
+            sql = "INSERT INTO wafflestay_test.ts_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+        }else{
+            sql = "INSERT INTO wafflestay_test.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+        }
         //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
         sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"+member_seq;    
         
@@ -348,13 +360,14 @@ exports.getIssure_nft = async (req, res, next) => {
 
                 var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
                 console.log("distance_diff:"+distance_diff);//단위 km
-
+/*
                 if(distance_diff > 0.05){ //50m 내외에 있을 경우
                     data_ret.code = 3;            
                     data_ret.msg = "위치 오류";
                     data_ret.status = "FAIL";
                     return res.json(data_ret);
                 }
+                */
             }
 
         }
@@ -369,7 +382,7 @@ exports.getIssure_nft = async (req, res, next) => {
         var sql = "";
         if(nft_type == 3){
             sql = "INSERT INTO wafflestay_test.ts_nft (member_seq, nft_type,course_point_no, insert_dttm, insert_id,update_dttm, update_id) values"
-            sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+            sql += "((select id from wafflestay_test.ts_user where email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
 
         }else{
             sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
@@ -396,9 +409,15 @@ exports.getIssure_nft = async (req, res, next) => {
         //property.img = img_json.toString().replace(' ', '').replace('\n', '').replace('\t', '');
         //property.img = property.img.toString().replace('/', '').replace("\"", '');
         
-        var aaa = JSON.parse(img_json);
-        //console.log("JSON.stringify(aaa):"+JSON.stringify(aaa));    
-        property.img = JSON.stringify(aaa);
+        //이미지가 없을 경우
+        //console.log("img_json:"+img_json);    
+        //if(img_json == ""){
+        //    property.img = "[]";
+        //}else{
+            var aaa = JSON.parse(img_json);
+            //console.log("JSON.stringify(aaa):"+JSON.stringify(aaa));    
+            property.img = JSON.stringify(aaa);
+        //}
 
         nft_info.property = property; 
         nft_info.lat = GPS_lat;
@@ -421,7 +440,7 @@ exports.getIssure_nft = async (req, res, next) => {
 
         //2. NFT 발행    
         
-        var url = process.env["NFT_METATDATA_REPOSITORY"] + "/NFT_metadata/14_metadata.js";
+        //var url = process.env["NFT_METATDATA_REPOSITORY"] + "/NFT_metadata/14_metadata.js";
         /*
         let ret = await mintNFT(metadata_url, addr,user_pk).catch((e) => {
             //console.error(e);
@@ -669,13 +688,16 @@ exports.getList_nft = async (req, res, next) => {
 
     if(nft_type == 3){ //stamp
         
-        sql = "SELECT a.nft_seq as nftid, a.nft_type,a.course_point_no as booth_no,  ";
-        sql +=" b.course_detail_name as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-        sql +=" from wafflestay_test.ts_nft as a ";
-        sql +=" LEFT JOIN wafflestay_test.ts_course_detail as b   ";
-        sql +=" ON a.course_point_no = b.course_point_no ";
-        sql +=" AND a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"') ";
-        sql +=" WHERE a.nft_hashid <> '0'";
+        sql = "SELECT a.nft_seq as nftid, a.nft_type,a.course_point_no as booth_no, b.course_point_no , b.course_seq, ";
+        sql += " c.course_type as course_type,";
+        sql += " b.course_detail_name as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
+        sql += "  from   wafflestay_test.ts_nft as a    "; 
+        sql += "  LEFT JOIN   wafflestay_test.ts_course_detail as b  ";
+        sql += "  ON  a.course_point_no = b.course_point_no ";
+        sql += "  LEFT JOIN wafflestay_test.ts_course AS c ";
+        sql += "  ON  b.course_seq = c.course_seq ";
+        sql += "  AND a.member_seq = (select id from wafflestay_test.ts_user where email='"+userID+"') ";
+        sql += " WHERE a.nft_hashid <> '0' ";
         
     }else{
         
@@ -697,16 +719,30 @@ exports.getList_nft = async (req, res, next) => {
     ret_data.nftcnt = rowsm.length;
     ret_data.nftdata =  rowsm;
 
-    for(var i=0;i<rowsm.length;i++){
-        
-        var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
-        sql += " where nft_seq = " + rowsm[i].nftid;
-        
-        console.log(sql);
-        let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
-            console.error(e);
-        });    
-        rowsm[i].img = rowsr;
+    if(nft_type == 3){ //stamp
+        for(var i=0;i<rowsm.length;i++){
+            
+            var sql = "SELECT id as image_seq, nft_id, image_url from wafflestay_test.ts_review_image ";
+            sql += " where nft_id = " + rowsm[i].nftid;
+            
+            console.log(sql);
+            let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+                console.error(e);
+            });    
+            rowsm[i].img = rowsr;
+        }
+    }else{
+        for(var i=0;i<rowsm.length;i++){
+            
+            var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+            sql += " where nft_seq = " + rowsm[i].nftid;
+            
+            console.log(sql);
+            let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+                console.error(e);
+            });    
+            rowsm[i].img = rowsr;
+        }
     }
 
     if(rowsm.length > 0 ){
@@ -758,19 +794,36 @@ exports.getDetail_nft = async (req, res, next) => {
 
         ret_data =  rowsm[0];
 
-        for(var i=0;i<rowsm.length;i++){
-            
-            var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
-            sql += " where nft_seq = " + rowsm[i].nftid;
-            
-            console.log(sql);
-            let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
-                console.error(e);
-            });    
-            rowsm[i].img = rowsr;
-        }        
-        console.log(rowsm[0].member_seq);
-        ret_data.status = "SUCCESS";
+        if(nft_type == 3){ //stamp
+
+            for(var i=0;i<rowsm.length;i++){
+                
+                var sql = "SELECT id as image_seq, nft_id, image_url from wafflestay_test.ts_review_image ";
+                sql += " where id = " + rowsm[i].nftid;
+                
+                console.log(sql);
+                let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+                    console.error(e);
+                });    
+                rowsm[i].img = rowsr;
+            }        
+            console.log(rowsm[0].member_seq);
+            ret_data.status = "SUCCESS";
+        }else{
+            for(var i=0;i<rowsm.length;i++){
+                
+                var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+                sql += " where nft_seq = " + rowsm[i].nftid;
+                
+                console.log(sql);
+                let [rowsr]  = await global.mysqlPool.query(sql).catch((e) => {
+                    console.error(e);
+                });    
+                rowsm[i].img = rowsr;
+            }        
+            console.log(rowsm[0].member_seq);
+            ret_data.status = "SUCCESS";
+        }
 
     }else{
         ret_data.status = "FAIL";
@@ -962,7 +1015,7 @@ async function mintNFT(uri, addressTo) {
 
 async function createMetadataFile(nft_info, nft_insertId) {
 
-    var metadata_url = process.env["NFT_METADATA_URI"] +nft_insertId +"_metadata.js";
+    var metadata_url = process.env["NFT_METADATA_URI"] +nft_insertId +"BTO_metadata.js";
     //var metadata_url = "public/NFT_metadata/" +nft_insertId +"_metadata.js";
     var writeStream = fs.createWriteStream(metadata_url);
     var metdata_temp = new Object();
