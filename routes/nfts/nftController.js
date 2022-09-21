@@ -99,14 +99,14 @@ exports.getPre_nft = async (req, res, next) => {
     
     if((QRcode.nft_type == 1)||(QRcode.nft_type == 2)||(QRcode.nft_type == 3)){
         if(QRcode.nft_type == 1){         // booth 일 경우 
-            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay_test.yd_booth ";        
+            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay.yd_booth ";        
             sql += " where booth_code= '" + QRcode.booth_no+"' ";     
         }else if(QRcode.nft_type == 2){    // 2 : program 일 경우
-            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay_test.yd_program ";
+            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay.yd_program ";
             sql += " where program_code = '" + QRcode.program_no+"' ";     
         }else if(QRcode.nft_type == 3){    // 3 : stamp 일 경우            
             console.log(QRcode.course_point_no);
-            sql = "select  lat as lat, lng as lng from wafflestay_test.ts_course_detail ";
+            sql = "select  lat as lat, lng as lng from wafflestay.ts_course_detail ";
             sql += " where course_point_no = '" + QRcode.course_point_no+"' ";     
         }
         
@@ -227,7 +227,7 @@ exports.getIssure_nft = async (req, res, next) => {
     var booth_name = req.body.booth_name;  
     var program_no = req.body.program_no; 
     var course_point_no = req.body.course_point_no;
-    console.log(req.body.img);
+    console.log("nft_type:"+nft_type);
     //console.log(JSON.parse(req.body.img));
     var img_json = (req.body.img);
 
@@ -238,18 +238,32 @@ exports.getIssure_nft = async (req, res, next) => {
     //1. 회원정보조회
     var aes_key = process.env["PK_ENC_AES_KEY"];
 
-    //var sql = "SELECT * from wafflestay_test.yd_user_pk as a ";
+    //var sql = "SELECT * from wafflestay.yd_user_pk as a ";
     var sql = "";
     if(nft_type ==3 ){
-        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.ts_user_pk as a ";
-        sql +=" LEFT JOIN wafflestay_test.ts_user as b   ";
+        /*
+        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, " ;
+        sql +=" (select id from wafflestay.ts_user where email='"+userID+"') AS member_seq, a.addr from wafflestay.ts_user_pk as a ";
+        sql +=" LEFT JOIN wafflestay.ts_user as b   ";
         sql +=" ON a.member_seq = b.id AND ";
-        sql +=" a.member_seq = (select id from wafflestay_test.ts_user where email='"+userID+"')";
+        sql +=" a.member_seq = (select id from wafflestay.ts_user where email='"+userID+"')";
+*/
+        sql = "SELECT  AES_DECRYPT(UNHEX(a.pk), 'synapticwave') as pkk, ";
+        sql += "(select id from wafflestay.ts_user where email='"+userID+"') as member_seq, a.addr";
+        sql += "  from wafflestay.ts_user_pk as a  ";
+        sql += "  WHERE a.member_seq=  (select id from wafflestay.ts_user where email='"+userID+"')";
     }else{
-        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.yd_user_pk as a ";
-        sql +=" LEFT JOIN wafflestay_test.tbl_member as b   ";
+        /*
+        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, ";
+        sql += "(select member_seq from wafflestay.tbl_member where member_email='"+userID+"') as member_seq, a.addr from wafflestay.yd_user_pk as a ";
+        sql +=" LEFT JOIN wafflestay.tbl_member as b   ";
         sql +=" ON a.member_seq = b.member_seq AND ";
-        sql +=" a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"')";
+        sql +=" a.member_seq = (select member_seq from wafflestay.tbl_member where member_email='"+userID+"')";
+*/        
+        sql = "SELECT  AES_DECRYPT(UNHEX(a.pk), 'synapticwave') as pkk, ";
+        sql += "(select member_seq from wafflestay.tbl_member where member_email='"+userID+"') as member_seq, a.addr";
+        sql += "  from wafflestay.yd_user_pk as a  ";
+        sql += "  WHERE a.member_seq=  (select member_seq from wafflestay.tbl_member where member_email='"+userID+"')";
     }
 
     console.log(sql);
@@ -259,7 +273,7 @@ exports.getIssure_nft = async (req, res, next) => {
     var member_seq = 0;
     var addr =""
     var user_pk =""
-    if(rowsm.length ==1 ){
+    if(rowsm.length == 1 ){
         member_seq = rowsm[0].member_seq; 
         addr = rowsm[0].addr;
         pk = rowsm[0].pkk;
@@ -274,12 +288,16 @@ exports.getIssure_nft = async (req, res, next) => {
         //console.log(private_key.privateKey);
         var sql = "";
         if(nft_type ==3 ){
-            sql = "INSERT INTO wafflestay_test.ts_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
-        }else{
-            sql = "INSERT INTO wafflestay_test.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql = "INSERT INTO wafflestay.ts_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+            //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
+          sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"
+          sql += " (select id from wafflestay.ts_user where email='"+userID+"')";
+         }else{
+            sql = "INSERT INTO wafflestay.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+              //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
+            sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"
+            sql += " (select member_seq from wafflestay.tbl_member where member_email='"+userID+"')";      
         }
-        //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
-        sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"+member_seq;    
         
         sql += ", SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
         console.log(sql);
@@ -297,16 +315,16 @@ exports.getIssure_nft = async (req, res, next) => {
 
     if((nft_type == 1)||(nft_type == 2)||(nft_type == 3)){
         if((nft_type == 1)){         // 전체행사장이나 booth 일 경우 
-            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay_test.yd_booth ";        
+            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay.yd_booth ";        
             sql += " where booth_code= '" + booth_no+"' ";     
         }else if(nft_type == 2){    // 2 : program 일 경우
-            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay_test.yd_program ";
+            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay.yd_program ";
             sql += " where program_code = '" + program_no+"' ";     
         }else if(nft_type == 3){    // 3 : stamp 일 경우            
             console.log(course_point_no);
             booth_no = course_point_no;
 
-            sql = "select  lat as lat, lng as lng from wafflestay_test.ts_course_detail ";
+            sql = "select  lat as lat, lng as lng from wafflestay.ts_course_detail ";
             sql += " where course_point_no = '" + course_point_no+"' ";     
         }
         
@@ -381,12 +399,12 @@ exports.getIssure_nft = async (req, res, next) => {
         //4. NFT 저장
         var sql = "";
         if(nft_type == 3){
-            sql = "INSERT INTO wafflestay_test.ts_nft (member_seq, nft_type,course_point_no, insert_dttm, insert_id,update_dttm, update_id) values"
-            sql += "((select id from wafflestay_test.ts_user where email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+            sql = "INSERT INTO wafflestay.ts_nft (member_seq, nft_type,course_point_no, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql += "((select id from wafflestay.ts_user where email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
 
         }else{
-            sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
-            sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+            sql = "INSERT INTO wafflestay.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql += "((select member_seq from wafflestay.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
         }
         console.log(sql);
         let [rowsn] = await global.mysqlPool.query(sql).catch((e) => {
@@ -455,13 +473,13 @@ exports.getIssure_nft = async (req, res, next) => {
         var hashid = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
         //3. NFT DB 업데이트
-        //var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+JSON.stringify(metdata_temp)+"', nft_hashid = '"+hashid+"'";
+        //var sql = "UPDATE wafflestay.yd_nft SET nft_value = '"+JSON.stringify(metdata_temp)+"', nft_hashid = '"+hashid+"'";
         var sql = "";
         if(nft_type == 3){
-            sql = "UPDATE wafflestay_test.ts_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
+            sql = "UPDATE wafflestay.ts_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
             sql += "where nft_seq="+nft_insertId;
         }else{
-            sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
+            sql = "UPDATE wafflestay.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
             sql += "where nft_seq="+nft_insertId;
         }
         console.log(sql);
@@ -484,45 +502,90 @@ exports.getIssure_nft = async (req, res, next) => {
 
 };
 
+
+
 /****
- * 리뷰, 그림 일괄등록방식으로 NFT 발급
+ * QR 이 없는 가운데 NFT 발급
+ * 
+{
+	"com_version": "0.1", // 통신전문 버전
+  "nft_type": 2,  //0: 전체 행사장,  1:booth, 2:program/행사, 3:스템프, 4:coupon  
+  "userID": "xnarai6@naver.com",
+  "review_seq": 14,
+	"booth_no": "A01",  // Booth 번호
+  "booth_name":"시냅틱웨이브부스", // booth 이름
+  "img":[{
+			  "img_seq": 14,
+			  "img1_url" : "http://wafflestay.kr/review/1423rfewsgfergtser5yhr6thyrthjntydjn.jpg" //저장된 그림위치
+			},
+			{
+			  "img_seq": 15,
+			  "img1_url" : "http://wafflestay.kr/review/1423rfewsgfergtser5yhr6thyrthjntydjn.jpg" //저장된 그림위치
+			},
+			{
+			  "img_seq": 16,
+			  "img1_url" : "http://wafflestay.kr/review/1423rfewsgfergtser5yhr6thyrthjntydjn.jpg" //저장된 그림위치
+			}
+  ]
+   
+  "lat" : 31.25466, //모바일 GPS 정보
+  "lng" : 125.266165,//모바일 GPS 정보
+  "create_date" : "2022-08-25 14:58:12" //요청일시
+}
  */
-/*
-exports.getFullIssure_nft = async (req, res, next) => {
+
+exports.getIssure_NonQRnft = async (req, res, next) => {
     console.log("getIssure_nft");
     //var userID = req.query.userID;   
     
     var userID = req.body.userID;   
-    console.log("userID:"+userID);
-  
-    var title = req.body.title;    
-    var body = req.body.body;    
-    var content = req.body.content;    
-    var nftcontract = req.body.nftcontract; 
+    console.log("userID:"+userID); 
+    var ret_data = new Object();
+
 
     var nft_type =  req.body.nft_type;   
     var booth_no =  req.body.booth_no;
-    var booth_name =  req.body.booth_name;    
-    var img_json = req.body.img;
-    
+    var booth_name = req.body.booth_name;  
+    var program_no = req.body.program_no; 
+    var course_point_no = req.body.course_point_no;
+    console.log("nft_type:"+nft_type);
+    //console.log(JSON.parse(req.body.img));
+    var img_json = (req.body.img);
+
     var GPS_lat =  req.body.lat;
     var GPS_lng =  req.body.lng;
     var create_date =  req.body.create_date;
-
-    //var nft_type = 1; //1: "booth", 2:stamp, 3:coupon;
-    console.log("userID:"+userID);
-    console.log("title:"+title);
-    console.log("body:"+body);
-    console.log("content:"+content);    
    
     //1. 회원정보조회
     var aes_key = process.env["PK_ENC_AES_KEY"];
 
-    //var sql = "SELECT * from wafflestay_test.yd_user_pk as a ";
-    var sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, a.member_seq, a.addr from wafflestay_test.yd_user_pk as a ";
-    sql +=" LEFT JOIN wafflestay_test.tbl_member as b   ";
-    sql +=" ON a.member_seq = b.member_seq AND ";
-    sql +=" a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"')";
+    //var sql = "SELECT * from wafflestay.yd_user_pk as a ";
+    var sql = "";
+    if(nft_type ==3 ){
+        /*
+        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, " ;
+        sql +=" (select id from wafflestay.ts_user where email='"+userID+"') AS member_seq, a.addr from wafflestay.ts_user_pk as a ";
+        sql +=" LEFT JOIN wafflestay.ts_user as b   ";
+        sql +=" ON a.member_seq = b.id AND ";
+        sql +=" a.member_seq = (select id from wafflestay.ts_user where email='"+userID+"')";
+*/
+        sql = "SELECT  AES_DECRYPT(UNHEX(a.pk), 'synapticwave') as pkk, ";
+        sql += "(select id from wafflestay.ts_user where email='"+userID+"') as member_seq, a.addr";
+        sql += "  from wafflestay.ts_user_pk as a  ";
+        sql += "  WHERE a.member_seq=  (select id from wafflestay.ts_user where email='"+userID+"')";
+    }else{
+        /*
+        sql = "SELECT  AES_DECRYPT(unhex(pk), '"+aes_key+"') as pkk, ";
+        sql += "(select member_seq from wafflestay.tbl_member where member_email='"+userID+"') as member_seq, a.addr from wafflestay.yd_user_pk as a ";
+        sql +=" LEFT JOIN wafflestay.tbl_member as b   ";
+        sql +=" ON a.member_seq = b.member_seq AND ";
+        sql +=" a.member_seq = (select member_seq from wafflestay.tbl_member where member_email='"+userID+"')";
+*/        
+        sql = "SELECT  AES_DECRYPT(UNHEX(a.pk), 'synapticwave') as pkk, ";
+        sql += "(select member_seq from wafflestay.tbl_member where member_email='"+userID+"') as member_seq, a.addr";
+        sql += "  from wafflestay.yd_user_pk as a  ";
+        sql += "  WHERE a.member_seq=  (select member_seq from wafflestay.tbl_member where member_email='"+userID+"')";
+    }
 
     console.log(sql);
     let [rowsm]  = await global.mysqlPool.query(sql).catch((e) => {
@@ -531,7 +594,7 @@ exports.getFullIssure_nft = async (req, res, next) => {
     var member_seq = 0;
     var addr =""
     var user_pk =""
-    if(rowsm.length ==1 ){
+    if(rowsm.length == 1 ){
         member_seq = rowsm[0].member_seq; 
         addr = rowsm[0].addr;
         pk = rowsm[0].pkk;
@@ -544,14 +607,22 @@ exports.getFullIssure_nft = async (req, res, next) => {
         });
         console.log(private_key.address);
         //console.log(private_key.privateKey);
-        
-        var sql = "INSERT INTO wafflestay_test.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
-        //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
-        sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"+member_seq;    
+        var sql = "";
+        if(nft_type ==3 ){
+            sql = "INSERT INTO wafflestay.ts_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+            //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
+          sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"
+          sql += " (select id from wafflestay.ts_user where email='"+userID+"')";
+         }else{
+            sql = "INSERT INTO wafflestay.yd_user_pk (addr, pk, member_seq, insert_dttm, insert_id,update_dttm, update_id) values"
+              //sql += "('"+private_key.address+"','"+private_key.privateKey+"',"+member_seq;    
+            sql += "('"+private_key.address+"',HEX(AES_ENCRYPT('"+ private_key.privateKey+"','"+aes_key+"')),"
+            sql += " (select member_seq from wafflestay.tbl_member where member_email='"+userID+"')";      
+        }
         
         sql += ", SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
         console.log(sql);
-        let [rows]  = await global.mysqlPool.query(sql).catch((e) => {
+        let [rows11]  = await global.mysqlPool.query(sql).catch((e) => {
             console.error(e);
         });
         addr = private_key.address;
@@ -559,105 +630,197 @@ exports.getFullIssure_nft = async (req, res, next) => {
         console.log("pkk:" + user_pk);  
     }
 
-    //2. Review 저장
-    var sql = "INSERT INTO wafflestay_test.yd_review (booth_seq, member_seq, review_content, review_img, insert_dttm, insert_id,update_dttm, update_id) values"
-    sql += "((select booth_seq from wafflestay_test.yd_booth where booth_code='"+ booth_no + "'),";
-    sql += "(select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),";
-    sql += "'"+body+"','" + img+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
-    console.log(sql);
-    let [rows]  = await global.mysqlPool.query(sql).catch((e) => {
-        console.error(e);
-    });
-    //console.log("rows:"+JSON.stringify(rows));
-    //console.log("rows.insertId:"+rows.insertId);
-    var review_insertId = rows.insertId;
 
+    //GPS 위치 확인
+    var sql = "";
 
-    //3. 그림 경로저장
-    // - 그림 1 이 없는 경우는 저장하지 않음, 그림2으 체크하지 않음 
-    var pic_insertId = 0;   
-    
-    for(var i=0;i<img_json.length();i++){        
-        var img_url = img_json[0].img_url;
-        if(i=0){
-            subquery += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img_url+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
-        }        
-        subquery += ",((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img_url+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+    if((nft_type == 1)||(nft_type == 2)||(nft_type == 3)){
+        if((nft_type == 1)){         // 전체행사장이나 booth 일 경우 
+            sql = "select open_datetime, close_datetime, booth_lat as lat, booth_lng as lng from wafflestay.yd_booth ";        
+            sql += " where booth_code= '" + booth_no+"' ";     
+        }else if(nft_type == 2){    // 2 : program 일 경우
+            sql = "select program_start_dttm as open_datetime, program_end_dttm as close_datetime,  lat as lat, lng as lng from wafflestay.yd_program ";
+            sql += " where program_code = '" + program_no+"' ";     
+        }else if(nft_type == 3){    // 3 : stamp 일 경우            
+            console.log(course_point_no);
+            booth_no = course_point_no;
+
+            //sql = "select  lat as lat, lng as lng from wafflestay.ts_course_detail ";
+            //sql += " where course_point_no = '" + course_point_no+"' ";     
+            
+            sql = "SELECT *, ST_DISTANCE_SPHERE(POINT("+GPS_lng+", "+GPS_lat+"), point) AS dist " 
+            sql += " FROM ts_course_detail ORDER BY dist ";
+        }
+        
+        console.log(sql);
+
+        let [rows] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+        //var data_ret = new Object();    
+
+        console.log(rows.length);
+        if(rows.length == 0){
+            ret_data.code = 1;
+            ret_data.msg = "부스정보가 부정확";
+            ret_data.status = "FAIL";
+            return res.json(ret_data);
+        
+        }else{
+            console.log(rows[0].lat);
+            console.log(rows[0].lng);
+            console.log(rows[0].open_datetime);
+            console.log(rows[0].close_datetime);
+
+            if((nft_type == 1)||(nft_type == 2)){
+                const open_datetime = new Date(rows[0].open_datetime);
+                const close_datetime = new Date(rows[0].close_datetime);
+                const date_now = new Date();
+
+                //행사시간비교
+                if(date_now.getTime() < open_datetime.getTime()){
+                    //행사전
+                    ret_data.code = 2;
+                    ret_data.msg = "행사전시간";
+                    ret_data.status = "FAIL";
+                    return res.json(ret_data);
+                }else{
+                    if(date_now.getTime() > close_datetime.getTime()){
+                        //행사종료후
+                        ret_data.code = 3;
+                        ret_data.msg = "행사종료후시간";
+                        ret_data.status = "FAIL";
+                        return res.json(ret_data);
+                    }
+                }
+            }
+
+            console.log("nft_type:"+nft_type);
+
+            if(nft_type > 0){ // 0(전체 행사장) 이 아닌 경우
+                //코스 위치와 모바일 GPS 위치를 비교하여 50m이내여부확인
+                var booth_lat = rows[0].lat;
+                var booth_lng = rows[0].lng;
+              
+                var course_info = new Object();
+                course_info.course_seq = rows[0].course_seq;
+                course_info.course_detail_no = rows[0].course_detail_no;
+                course_info.course_point_no = rows[0].course_point_no;
+                course_info.course_detail_name = rows[0].course_detail_name;    
+                course_info.dist = rows[0].dist;                            
+                ret_data.course = course_info;
+
+                var distance_diff = getDistanceFromLatLonInKm(booth_lat,booth_lng,GPS_lat,GPS_lng) ;
+                console.log("distance_diff:"+distance_diff);//단위 km
+
+                if(distance_diff > 0.05){ //50m 내외에 있을 경우
+                    ret_data.code = 3;            
+                    ret_data.msg = "NFT 발행할 위치가 아님";
+                    ret_data.status = "FAIL";
+                    return res.json(ret_data);
+                }
+               
+            }
+
+        }
+        
+    } else if(nft_type == 0){
+        booth_no = 0;
+        booth_name = "전체행사장";
+
     }
-    var sql = "INSERT INTO wafflestay_test.yd_image (member_seq, review_seq, image_url, insert_dttm, insert_id,update_dttm, update_id) values"
-    sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),"+ review_insertId+",'"+img1+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";    
-    sql += subquery;
-
-    console.log(sql);
-
-    let [rows11] = await global.mysqlPool.query(sql).catch((e) => {
-        console.error(e);
-    });
-    console.log("rows:"+JSON.stringify(rows11));
-    console.log("rows.insertId:"+rows11.insertId);
-    pic_insertId = Number(rows11.insertId); // img1_index, img2_index= img1_index+1  
-   
-    //4. NFT 저장
-    var sql = "INSERT INTO wafflestay_test.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
-    sql += "((select member_seq from wafflestay_test.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
-    console.log(sql);
-    let [rowsn] = await global.mysqlPool.query(sql).catch((e) => {
-        console.error(e);
-    });
-    var nft_insertId = rowsn.insertId;  
-
-    //5. metadata.js 생성   
-    var nft_info = new Object();
-    nft_info.userID = userID;
-    nft_info.nft_type=nft_type;
-    nft_info.member_seq = member_seq;
-    nft_info.booth_no = booth_no;
-    nft_info.img1 = img1;
-    nft_info.img2 = img2;
-    nft_info.lat = GPS_lat;
-    nft_info.lng = GPS_lng;
-
-    var  metadata_url = await createMetadataFile(nft_info, nft_type,nft_insertId).catch((e) => {
-        console.error(e);
-    });
-    console.log("metadata_url:"+metadata_url);
-
-    //2. NFT 발행    
-    var url = process.env["NFT_METATDATA_REPOSITORY"] + "/NFT_metadata/14_metadata.js";
-    let ret = await mintNFT(metadata_url, addr,user_pk).catch((e) => {
-        console.error(e);
-    });
-    var hashid = ret.data;
-
-
-    //3. NFT DB 업데이트
-    //var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+JSON.stringify(metdata_temp)+"', nft_hashid = '"+hashid+"'";
-    var sql = "UPDATE wafflestay_test.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";
     
-    sql += "where nft_seq="+nft_insertId;
-    console.log(sql);
-    let [rows1] = await global.mysqlPool.query(sql).catch((e) => {
-        console.error(e);
-    });
-    // 그림 DB 업데이트
-    var sql = "UPDATE wafflestay_test.yd_image SET nft_seq = "+nft_insertId
-    sql += " where review_seq="+ review_insertId;
+        //4. NFT 저장
+        var sql = "";
+        if(nft_type == 3){
+            sql = "INSERT INTO wafflestay.ts_nft (member_seq, nft_type,course_point_no, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql += "((select id from wafflestay.ts_user where email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+
+        }else{
+            sql = "INSERT INTO wafflestay.yd_nft (member_seq, nft_type,booth_no, insert_dttm, insert_id,update_dttm, update_id) values"
+            sql += "((select member_seq from wafflestay.tbl_member where member_email='"+ userID + "'),'"+ nft_type+"','"+booth_no+"', SYSDATE(), '"+userID+"',SYSDATE(), '"+userID+"')";
+        }
+        console.log(sql);
+        let [rowsn] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
+        var nft_insertId = rowsn.insertId;  
+
+        //5. metadata.js 생성   
+        var nft_info = new Object();
+        nft_info.nft_type = nft_type;    
+        nft_info.nft_version = "0.1";
+        nft_info.member_seq = member_seq;    
+        nft_info.userID = userID;    
+        nft_info.create_date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+
+        var property = new Object();
+        property.booth_no = booth_no;   
+        property.booth_name = booth_name;
+        //property.img = img_json;
+        //property.img = img_json.toString().replace(' ', '').replace('\n', '').replace('\t', '');
+        //property.img = property.img.toString().replace('/', '').replace("\"", '');
+        
+        //이미지가 없을 경우
+        //console.log("img_json:"+img_json);    
+        //if(img_json == ""){
+        //    property.img = "[]";
+        //}else{
+            var aaa = JSON.parse(img_json);
+            //console.log("JSON.stringify(aaa):"+JSON.stringify(aaa));    
+            property.img = JSON.stringify(aaa);
+        //}
+
+        nft_info.property = property; 
+        nft_info.lat = GPS_lat;
+        nft_info.lng = GPS_lng;
+
+        var  metadata_url = await createMetadataFile(nft_info, nft_insertId).catch((e) => {
+            console.error(e);
+        });
+        console.log("metadata_url:"+metadata_url);
+        if(metadata_url =="undefined"){
+            
+            ret_data.code = 0;
+            ret_data.msg ="fail";
+            ret_data.status = "fail";        
+
+            return res.json(ret_data);    
+
+        }
+
+        //2. NFT 발행        
+        //var url = process.env["NFT_METATDATA_REPOSITORY"] + "/NFT_metadata/14_metadata.js";
+        /*
+        let ret = await mintNFT(metadata_url, addr,user_pk).catch((e) => {
+            //console.error(e);
+        });        
+        let ret = await mintPolygonNFT(metadata_url, addr,user_pk).catch((e) => {
+            //console.error(e);
+        });
+        var hashid = ret.data;
+*/
+        
+        var hashid = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+        //3. NFT DB 업데이트
+        //var sql = "UPDATE wafflestay.yd_nft SET nft_value = '"+JSON.stringify(metdata_temp)+"', nft_hashid = '"+hashid+"'";
+        var sql = "";
+        if(nft_type == 3){
+            sql = "UPDATE wafflestay.ts_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
+            sql += "where nft_seq="+nft_insertId;
+        }else{
+            sql = "UPDATE wafflestay.yd_nft SET nft_value = '"+metadata_url+"', nft_hashid = '"+hashid+"'";                
+            sql += "where nft_seq="+nft_insertId;
+        }
+        console.log(sql);
+        let [rows1] = await global.mysqlPool.query(sql).catch((e) => {
+            console.error(e);
+        });
     
-    console.log(sql);
-    let [rows5] = await global.mysqlPool.query(sql).catch((e) => {
-        console.error(e);
-    });
-    //Review DB 업데이트
-    var sql = "UPDATE wafflestay_test.yd_review SET nft_seq = "+nft_insertId
-    sql += " where review_seq="+review_insertId;
-   
-    console.log(sql);
-    let [rows6] = await global.mysqlPool.query(sql).catch((e) => {
-        console.error(e);
-    });    
- 
+
     //4. 응답
-    var ret_data = new Object();
+   
     ret_data.code = 0;
     ret_data.msg ="정상발급";
     ret_data.status = "SUCCESS";
@@ -669,7 +832,8 @@ exports.getFullIssure_nft = async (req, res, next) => {
     return res.json(ret_data);    
 
 };
-*/
+
+
 
 /***
  * 회원보유 NFT 목록 조회
@@ -691,22 +855,22 @@ exports.getList_nft = async (req, res, next) => {
         sql = "SELECT a.nft_seq as nftid, a.nft_type,a.course_point_no as booth_no, b.course_point_no , b.course_seq, ";
         sql += " c.course_type as course_type,";
         sql += " b.course_detail_name as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-        sql += "  from   wafflestay_test.ts_nft as a    "; 
-        sql += "  LEFT JOIN   wafflestay_test.ts_course_detail as b  ";
+        sql += "  from   wafflestay.ts_nft as a    "; 
+        sql += "  LEFT JOIN   wafflestay.ts_course_detail as b  ";
         sql += "  ON  a.course_point_no = b.course_point_no ";
-        sql += "  LEFT JOIN wafflestay_test.ts_course AS c ";
+        sql += "  LEFT JOIN wafflestay.ts_course AS c ";
         sql += "  ON  b.course_seq = c.course_seq ";
-        sql += "  AND a.member_seq = (select id from wafflestay_test.ts_user where email='"+userID+"') ";
+        sql += "  AND a.member_seq = (select id from wafflestay.ts_user where email='"+userID+"') ";
         sql += " WHERE a.nft_hashid <> '0' ";
         
     }else{
         
         sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
         sql +=" b.booth_title as booth_name,b.booth_lat as lat, b.booth_lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-        sql +=" from wafflestay_test.yd_nft as a ";
-        sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
+        sql +=" from wafflestay.yd_nft as a ";
+        sql +=" LEFT JOIN wafflestay.yd_booth as b   ";
         sql +=" ON a.booth_no = b.booth_code ";
-        sql +=" AND a.member_seq = (select member_seq from wafflestay_test.tbl_member where member_email='"+userID+"') ";
+        sql +=" AND a.member_seq = (select member_seq from wafflestay.tbl_member where member_email='"+userID+"') ";
         sql +=" WHERE a.nft_hashid <> '0'";
     }
 
@@ -722,7 +886,7 @@ exports.getList_nft = async (req, res, next) => {
     if(nft_type == 3){ //stamp
         for(var i=0;i<rowsm.length;i++){
             
-            var sql = "SELECT id as image_seq, nft_id, image_url from wafflestay_test.ts_review_image ";
+            var sql = "SELECT id as image_seq, nft_id, image_url from wafflestay.ts_review_image ";
             sql += " where nft_id = " + rowsm[i].nftid;
             
             console.log(sql);
@@ -734,7 +898,7 @@ exports.getList_nft = async (req, res, next) => {
     }else{
         for(var i=0;i<rowsm.length;i++){
             
-            var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+            var sql = "SELECT image_seq, image_url from wafflestay.yd_image ";
             sql += " where nft_seq = " + rowsm[i].nftid;
             
             console.log(sql);
@@ -772,16 +936,16 @@ exports.getDetail_nft = async (req, res, next) => {
     if(nft_type == 3){
         sql = "SELECT a.nft_seq as nftid, a.nft_type,a.course_point_no as booth_no,  ";
         sql +=" b.course_detail_name as booth_name,b.lat as lat, b.lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-        sql +=" from wafflestay_test.ts_nft as a ";
-        sql +=" LEFT JOIN wafflestay_test.ts_course_detail as b   ";
+        sql +=" from wafflestay.ts_nft as a ";
+        sql +=" LEFT JOIN wafflestay.ts_course_detail as b   ";
         sql +=" ON a.course_point_no = b.course_point_no ";
         sql +=" where a.nft_seq = "+ntfId+" ";    
 
     }else{
         sql = "SELECT a.nft_seq as nftid, a.nft_type,a.booth_no as booth_no,  ";
         sql +=" b.booth_title as booth_name,b.booth_lat as lat, b.booth_lng as lng,a.nft_hashid, a.insert_dttm as create_date ";
-        sql +=" from wafflestay_test.yd_nft as a ";
-        sql +=" LEFT JOIN wafflestay_test.yd_booth as b   ";
+        sql +=" from wafflestay.yd_nft as a ";
+        sql +=" LEFT JOIN wafflestay.yd_booth as b   ";
         sql +=" ON a.booth_no = b.booth_code ";
         sql +=" where a.nft_seq = "+ntfId+" ";    
     }
@@ -798,7 +962,7 @@ exports.getDetail_nft = async (req, res, next) => {
 
             for(var i=0;i<rowsm.length;i++){
                 
-                var sql = "SELECT id as image_seq, nft_id, image_url from wafflestay_test.ts_review_image ";
+                var sql = "SELECT id as image_seq, nft_id, image_url from wafflestay.ts_review_image ";
                 sql += " where id = " + rowsm[i].nftid;
                 
                 console.log(sql);
@@ -812,7 +976,7 @@ exports.getDetail_nft = async (req, res, next) => {
         }else{
             for(var i=0;i<rowsm.length;i++){
                 
-                var sql = "SELECT image_seq, image_url from wafflestay_test.yd_image ";
+                var sql = "SELECT image_seq, image_url from wafflestay.yd_image ";
                 sql += " where nft_seq = " + rowsm[i].nftid;
                 
                 console.log(sql);

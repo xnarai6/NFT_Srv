@@ -22,6 +22,12 @@ router.route('/pre_nft').post(
 router.route('/issue_nft').post(
     controller.getIssure_nft
 );
+
+
+router.route('/issue_NonQRnft').post(
+    controller.getIssure_NonQRnft
+);
+
 /****
  * NFT 발급
  */
